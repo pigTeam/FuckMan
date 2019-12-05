@@ -1,0 +1,22 @@
+{
+  "logLevel": 1,
+  "hostIp": "0.0.0.0",
+  "hostPort": 31778,
+  "regConf": {
+    "enable": false,
+    "gameID": 217669,
+    "svcName": "svc-abc",
+    "podName": "pod-abc",
+    "remoteHost": "192.168.8.1",
+    "remotePort": 9981,
+    "localHost": "192.168.8.2",
+    "localPort": 31778
+  },
+  "roomConf": {
+    "enable": true,
+    "svcName": "svc-abc",
+    "podName": "pod-abc",
+    "remoteHost": "192.168.8.1",
+    "remotePort": 9982
+  }
+}
