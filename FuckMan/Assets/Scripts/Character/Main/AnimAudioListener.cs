@@ -5,6 +5,8 @@ using System.Collections;
 public class AnimAudioListener : MonoBehaviour
 {
     public AudioClip footStep;
+    public AudioClip simpleAttackAudio;
+    public AudioClip jumpAttackAudio;
 
     private AudioSource audioSource;
 
@@ -23,6 +25,14 @@ public class AnimAudioListener : MonoBehaviour
         {
             case "footStep":
                 PlayAudio(footStep);
+                break;
+
+            case "simpleAttackAudio":
+                PlayAudio(simpleAttackAudio);
+                break;
+
+            case "jumpAttackAudio":
+                PlayAudio(jumpAttackAudio);
                 break;
 
             default:
