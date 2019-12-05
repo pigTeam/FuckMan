@@ -7,8 +7,11 @@ public class AnimAudioListener : MonoBehaviour
     public AudioClip footStep;
     public AudioClip simpleAttackAudio;
     public AudioClip jumpAttackAudio;
+    public AudioClip landAudio;
 
     private AudioSource audioSource;
+    private Rigidbody2D rigidBody;
+    private float velosityVertical = 0;
 
     private void Start()
     {
@@ -17,6 +20,17 @@ public class AnimAudioListener : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        rigidBody = GetComponent<Rigidbody2D>();
+    }
+
+    private void Update()
+    {
+        if(rigidBody.velocity.y == 0 && velosityVertical < 0)
+        {
+            PlayAudio(landAudio);
+        }
+        velosityVertical = rigidBody.velocity.y;
     }
 
     public void OnAnimAudioEvent(string name)
