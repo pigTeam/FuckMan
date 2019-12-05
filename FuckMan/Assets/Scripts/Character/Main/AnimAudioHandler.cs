@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class AnimAudioListener : MonoBehaviour
+public class AnimAudioHandler : MonoBehaviour
 {
     public AudioClip footStep;
     public AudioClip simpleAttackAudio;
