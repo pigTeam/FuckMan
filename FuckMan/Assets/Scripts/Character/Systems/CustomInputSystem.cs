@@ -4,6 +4,9 @@ using Unity.Entities;
 using Matchvs;
 public class CustomInputSystem : ComponentSystem
 {
+    private bool isMove = false;
+    private bool isAttack = false;
+    private bool isJumpa = false;
     protected override void OnUpdate()
     {
         float hor = Input.GetAxis("Horizontal");
@@ -21,24 +24,45 @@ public class CustomInputSystem : ComponentSystem
                 {
                     frame.move.speed = hor * moveData.maxSpeed;
                     isDirty = true;
+                    isMove = true;
+                } else
+                {
+                    if (isMove)
+                    {
+                        frame.move.speed = hor * moveData.maxSpeed;
+                        isDirty = true;
+                    }
+                    isMove = false;
                 }
 
                 if (atkTrigger)
                 {
                     frame.simpleAttack.attackTrigger = true;
                     isDirty = true;
+                    isAttack = true;
                 } else
                 {
-                   // atkData.attackTrigger = false;
+                    if (isAttack)
+                    {
+                        frame.simpleAttack.attackTrigger = false;
+                        isDirty = true;
+                    }
+                    isAttack = false;
                 }
 
                 if (isJump)
                 {
                     frame.jump.jumpTrigger = isJump;
                     isDirty = true;
+                    isJumpa = true;
                 } else
                 {
-                   // jumpData.jumpTrigger = false;
+                    if (isJumpa)
+                    {
+                        frame.jump.jumpTrigger = false;
+                        isDirty = true;
+                    }
+                    isJumpa = false;
                 }
             }
         });
