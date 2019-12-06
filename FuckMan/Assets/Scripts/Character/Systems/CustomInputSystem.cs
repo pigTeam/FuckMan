@@ -53,6 +53,7 @@ public class CustomInputSystem : ComponentSystem
                 if (isJump)
                 {
                     frame.jump.jumpTrigger = isJump;
+                    frame.jump.jumpForce = jumpData.jumpForce;
                     isDirty = true;
                     isJumpa = true;
                 } else
