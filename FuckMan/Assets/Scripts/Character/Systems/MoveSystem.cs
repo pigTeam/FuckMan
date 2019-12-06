@@ -1,28 +1,38 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Unity.Entities;
+using System.Collections.Generic;
 
 public class MoveSystem : ComponentSystem
 {
     protected override void OnUpdate()
     {
-        Entities.WithAllReadOnly<FrameMoveComponent, MoveComponent>().ForEach((Entity id, ref FrameMoveComponent moveData, ref MoveComponent move) => {
+       
+        Entities.WithAllReadOnly<UserDataComponent, MoveComponent>().ForEach((Entity id, ref UserDataComponent userData, ref MoveComponent move) => {
             Transform transform = EntityUtility.Instance.GetComponent<Transform>(id);
-            if(transform != null && moveData.moves.Count > 0)
+            if (transform != null)
             {
-                var data = moveData.moves[0];
-                move.speed = data.speed;
-                transform.Translate(Vector3.right * data.speed * Time.deltaTime);
-                SpriteRenderer spriteRenderer = EntityUtility.Instance.GetComponent<SpriteRenderer>(id);
-                if (spriteRenderer != null && data.speed != 0)
+                List<MoveComponent> moveList;
+                if (Game.frameMoves.TryGetValue(userData.userID, out moveList))
                 {
-                    spriteRenderer.flipX = data.speed < 0 ? true : false;
-                }
+                    if (moveList.Count > 0)
+                    {
+                        var data = moveList[0];
+                        move.speed = data.speed;
+                        transform.Translate(Vector3.right * move.speed * Time.deltaTime);
+                        SpriteRenderer spriteRenderer = EntityUtility.Instance.GetComponent<SpriteRenderer>(id);
+                        if (spriteRenderer != null && move.speed != 0)
+                        {
+                            spriteRenderer.flipX = move.speed < 0 ? true : false;
+                        }
 
-                moveData.moves.Remove(data);
+                        moveList.Remove(data);
+                    }
+                }
+           
             }
 
-           
-        });    
+
+        });
     }
 }

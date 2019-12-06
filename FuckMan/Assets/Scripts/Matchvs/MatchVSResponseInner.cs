@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Matchvs;
 using UnityEngine;
@@ -126,6 +127,7 @@ public class MatchVSResponseInner : MatchvsResponse
             {
                 engine.joinOver();
             }
+
         } else
         {
             Debug.LogError(" join room failed! ");
@@ -309,7 +311,7 @@ public class MatchVSResponseInner : MatchvsResponse
      */
     private  void setFrameSyncNotifyInner(SetFrameSyncRateNotify notify)
     {
-        Debug.Log(" setFrameSyncNotifyInner: " + notify);
+        //Debug.Log(" setFrameSyncNotifyInner: " + notify);
     }
     /**
      *
@@ -332,7 +334,61 @@ public class MatchVSResponseInner : MatchvsResponse
             for (int i = 0; i < data.frameItems.Length; i++)
             {
                 FrameDataNotify notify = (FrameDataNotify)(data.frameItems.GetValue(i));
-                Game.frameNotifies.Add(notify);
+
+                try
+                {
+                    var frameData = DataUtil.Deserialize<FrameData>(notify.CpProto);
+
+                    List<MoveComponent> moveList;
+                    if (Game.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                    {
+
+                        moveList.Add(frameData.move);
+
+                    }
+                    else
+                    {
+                        moveList = new List<MoveComponent>();
+                        Game.frameMoves.Add(notify.SrcUid, moveList);
+                    }
+
+                   
+
+                    List<JumpComponent> jumpList;
+                    if (Game.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
+                    {
+
+                        jumpList.Add(frameData.jump);
+
+                    }
+                    else
+                    {
+                        jumpList = new List<JumpComponent>();
+                        Game.frameJumps.Add(notify.SrcUid, jumpList);
+                    }
+
+                    
+
+
+                    List<SimpleAttackComponent> attackList;
+                    if (Game.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
+                    {
+
+                        attackList.Add(frameData.simpleAttack);
+
+                    }
+                    else
+                    {
+                        attackList = new List<SimpleAttackComponent>();
+                        Game.frameAttacks.Add(notify.SrcUid, attackList);
+                    }
+
+                    
+                } catch(Exception e)
+                {
+                    Debug.Log(e);
+                }
+
             }
         }
     }

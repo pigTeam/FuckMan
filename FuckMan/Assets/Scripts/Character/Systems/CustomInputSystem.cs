@@ -9,31 +9,40 @@ public class CustomInputSystem : ComponentSystem
         float hor = Input.GetAxis("Horizontal");
         bool isJump = Input.GetKeyDown(KeyCode.Space);
         bool atkTrigger = Input.GetAxis("Fire1") != 0;
-        FrameData frame = new FrameData();
+        FrameData frame = new FrameData() { move = new MoveComponent(), jump = new JumpComponent(), simpleAttack = new SimpleAttackComponent()};
         bool isDirty = false;
-        Entities.WithAll<MoveComponent>().WithAll<InputComponent>().ForEach((Entity id,ref MoveComponent moveData)=> {
 
-            //moveData.speed = hor * moveData.maxSpeed;
-            frame.move.speed = hor * moveData.maxSpeed;
-            isDirty = true;
-        });
+        Entities.WithAll<MoveComponent, UserDataComponent, JumpComponent, SimpleAttackComponent>().WithAll<InputComponent>().ForEach((Entity id, ref MoveComponent moveData, ref UserDataComponent userData, ref JumpComponent jumpData, ref SimpleAttackComponent atkData) => {
 
-        if(isJump)
-        {
-            Entities.WithAll<JumpComponent>().WithAll<InputComponent>().ForEach((Entity id, ref JumpComponent jumpData) => {
-                frame.jump.jumpTrigger = isJump;
-                isDirty = true;
-            });
-        }
-       
-        if(atkTrigger)
-        {
-            Entities.WithAll<InputComponent>()
-                .WithAll<SimpleAttackComponent>().ForEach((Entity id, ref SimpleAttackComponent atkData) => {
+           
+          if (userData.isSelf)
+            {
+                if (hor != 0)
+                {
+                    frame.move.speed = hor * moveData.maxSpeed;
+                    isDirty = true;
+                }
+
+                if (atkTrigger)
+                {
                     frame.simpleAttack.attackTrigger = true;
                     isDirty = true;
-                });
-        }
+                } else
+                {
+                   // atkData.attackTrigger = false;
+                }
+
+                if (isJump)
+                {
+                    frame.jump.jumpTrigger = isJump;
+                    isDirty = true;
+                } else
+                {
+                   // jumpData.jumpTrigger = false;
+                }
+            }
+        });
+
 
         if (isDirty)
         {
