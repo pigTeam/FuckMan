@@ -11,11 +11,13 @@ public class Game : UnityContext
     public static string Token;
     public static bool isStart = false;
 
-    public static List<FrameDataNotify> frameNotifies = new List<FrameDataNotify>(); 
+    public static Dictionary<uint, List<MoveComponent>> frameMoves = new Dictionary<uint, List<MoveComponent>>();
+    public static Dictionary<uint, List<JumpComponent>> frameJumps = new Dictionary<uint, List<JumpComponent>>();
+    public static Dictionary<uint, List<SimpleAttackComponent>> frameAttacks = new Dictionary<uint, List<SimpleAttackComponent>>();
 
     public GameObject players;
     
-    private List<Knight> playerCtrlList = new List<Knight>();
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -28,19 +30,14 @@ public class Game : UnityContext
 
     public void clearPlayerFrame()
     {
-        playerCtrlList.ForEach((Knight ctrl) => {
-            if (ctrl != null)
-            {
-                //ctrl.playerFrame.clear();
-            }
-        });
+     
     }
 
     public void addPlayer(PlayerInfo playerInfo)
     {
 
-        Debug.Log("  add player ------------------- ");
-        Debug.Log(playerInfo);
+        Debug.Log("  add player ------------------- :" + playerInfo.UserID);
+
         Object playerObj = Resources.Load("Knight", typeof(GameObject));
         GameObject player = Instantiate(playerObj) as GameObject;
         player.transform.parent = players.transform;
@@ -48,7 +45,6 @@ public class Game : UnityContext
         player.transform.localPosition += new Vector3(getPlayerCount() * 1, 0, 0);
         Knight ctrl = player.GetComponent<Knight>();
         ctrl.bindUser(playerInfo.UserID);
-        playerCtrlList.Add(ctrl);
        
     }
 

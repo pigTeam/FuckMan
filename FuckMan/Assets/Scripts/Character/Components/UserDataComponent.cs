@@ -5,4 +5,7 @@ using Unity.Entities;
 public struct UserDataComponent : IComponentData
 {
     public uint userID;
+    public bool isSelf;
 }
+
+

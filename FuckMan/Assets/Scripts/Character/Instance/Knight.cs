@@ -23,7 +23,7 @@ public class Knight : MonoBehaviour
         entityManager = gameObjectEntity.EntityManager;
 
         SetUpMoveComponent();
-        SetupInputComponent();
+        
         SetupAnimationComponent();
         SetupJumpComponent();
         SetupSimpleAttackComponent();
@@ -31,12 +31,15 @@ public class Knight : MonoBehaviour
 
     public void bindUser(uint uid)
     {
+        GameObjectEntity gameObjectEntity = GetComponent<GameObjectEntity>();
+        thisEntity = gameObjectEntity.Entity;
+        entityManager = gameObjectEntity.EntityManager;
         userID = uid;
-        SetUpUserDataComponent(uid);
+        SetUpUserDataComponent(uid, userID == Game.UserID);
         if (userID == Game.UserID)
         {
             // self
-
+            SetupInputComponent();
         }
     }
     // Update is called once per frame
@@ -46,9 +49,9 @@ public class Knight : MonoBehaviour
 
     #region Setup Components
 
-    void SetUpUserDataComponent(uint id)
+    void SetUpUserDataComponent(uint id, bool isSelf)
     {
-        var user = new UserDataComponent() { userID = id };
+        var user = new UserDataComponent() { userID = id ,isSelf = isSelf };
         entityManager.AddComponentData(thisEntity, user);
     }
 
@@ -57,8 +60,6 @@ public class Knight : MonoBehaviour
         var moveCmp = new MoveComponent() { maxSpeed = moveSpeed };
         entityManager.AddComponentData(thisEntity, moveCmp);
 
-        var frameMove = new FrameMoveComponent() { moves = new List<Movement>() };
-        entityManager.AddComponentData(thisEntity, frameMove);
     }
 
     void SetupInputComponent()
@@ -76,8 +77,6 @@ public class Knight : MonoBehaviour
         var jumpCmp = new JumpComponent() { jumpForce = this.jumpForce };
         entityManager.AddComponentData(thisEntity, jumpCmp);
 
-        var jumpFrame = new FrameJumpComponent() { jumps = new List<Jumpment>()};
-        entityManager.AddComponentData(thisEntity, jumpFrame);
     }
 
     void SetupSimpleAttackComponent()
@@ -85,8 +84,6 @@ public class Knight : MonoBehaviour
         var simpleAtkCmp = new SimpleAttackComponent() {  };
         entityManager.AddComponentData(thisEntity, simpleAtkCmp);
 
-        var attackFrame = new FrameAttackComponent() { attacks = new List<Attackment>()};
-        entityManager.AddComponentData(thisEntity, attackFrame);
     }
     #endregion
 
