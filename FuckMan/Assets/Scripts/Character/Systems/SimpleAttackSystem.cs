@@ -9,7 +9,7 @@ public class SimpleAttackSystem : ComponentSystem
         Entities.WithAll<UserDataComponent, SimpleAttackComponent>().ForEach((Entity id, ref UserDataComponent userData, ref SimpleAttackComponent attack) => {
 
             List<SimpleAttackComponent> attackList;
-            if (Game.frameAttacks.TryGetValue(userData.userID, out attackList))
+            if (GameNetWork.frameAttacks.TryGetValue(userData.userID, out attackList))
             {
                 if (attackList.Count > 0)
                 {

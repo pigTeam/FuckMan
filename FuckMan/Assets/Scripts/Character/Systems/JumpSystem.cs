@@ -9,7 +9,7 @@ public class JumpSystem : ComponentSystem
         Entities.WithAll<UserDataComponent, JumpComponent>().ForEach((Entity id, ref UserDataComponent userData, ref JumpComponent jump) => {
 
             List<JumpComponent> jumpList;
-            if (Game.frameJumps.TryGetValue(userData.userID, out jumpList))
+            if (GameNetWork.frameJumps.TryGetValue(userData.userID, out jumpList))
             {
                 if (jumpList.Count > 0)
                 {

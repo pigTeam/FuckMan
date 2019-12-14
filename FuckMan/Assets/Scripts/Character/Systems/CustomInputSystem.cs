@@ -71,7 +71,7 @@ public class CustomInputSystem : ComponentSystem
 
         if (isDirty)
         {
-            Game.FrameTime = System.DateTime.Now.Ticks;
+            GameNetWork.FrameTime = System.DateTime.Now.Ticks;
             MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(frame));
         }
     }

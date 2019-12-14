@@ -13,7 +13,7 @@ public class MoveSystem : ComponentSystem
             if (transform != null)
             {
                 List<MoveComponent> moveList;
-                if (Game.frameMoves.TryGetValue(userData.userID, out moveList))
+                if (GameNetWork.frameMoves.TryGetValue(userData.userID, out moveList))
                 {
                     if (moveList.Count > 0)
                     {

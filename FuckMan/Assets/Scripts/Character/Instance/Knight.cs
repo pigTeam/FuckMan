@@ -35,8 +35,8 @@ public class Knight : MonoBehaviour
         thisEntity = gameObjectEntity.Entity;
         entityManager = gameObjectEntity.EntityManager;
         userID = uid;
-        SetUpUserDataComponent(uid, userID == Game.UserID);
-        if (userID == Game.UserID)
+        SetUpUserDataComponent(uid, userID == GameNetWork.UserID);
+        if (userID == GameNetWork.UserID)
         {
             // self
             SetupInputComponent();

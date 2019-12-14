@@ -33,9 +33,9 @@ public class MatchVSResponseInner : MatchvsResponse
     private setFrameSyncNotify setFrameSyncNot;
 
 
-    private Game game;
+    private GameNetWork game;
     private MatchvsEngine engine;
-    public void bindAll(Game game)
+    public void bindAll(GameNetWork game)
     {
         engine = MatchvsEngine.getInstance();
         this.game = game;
@@ -67,6 +67,11 @@ public class MatchVSResponseInner : MatchvsResponse
 
     }
 
+    public void Match(uint maxCount)
+    {
+        engine.joinRandomRoom(maxCount);
+    }
+
     /**
            *
            * @param userInfo {MsRegistRsp//}
@@ -74,8 +79,8 @@ public class MatchVSResponseInner : MatchvsResponse
     private void registerUserResponseInner(MsUser userInfo) {
         Debug.Log("registerUserResponseInner");
         Debug.Log(userInfo);
-        Game.UserID = userInfo.userid;
-        Game.Token = userInfo.token;
+        GameNetWork.UserID = userInfo.userid;
+        GameNetWork.Token = userInfo.token;
         engine.login(userInfo.userid, userInfo.token);
     }
     /**
@@ -88,9 +93,11 @@ public class MatchVSResponseInner : MatchvsResponse
         Debug.Log(loginRsp);
         if (loginRsp.Status == ErrorCode.Ok)
         {
-            engine.joinRandomRoom(2);
+            GameNetWork.Inst.OnInitRes(true);
+            //engine.joinRandomRoom(2);
         } else
         {
+            GameNetWork.Inst.OnInitRes(false);
             Debug.LogError(" login failed !");
         }
     }
@@ -115,14 +122,15 @@ public class MatchVSResponseInner : MatchvsResponse
         Debug.Log("joinRoomResponseInner :" + status);
         if (status == 200)
         {
-            if (roomInfo.Owner == Game.UserID)
+            game.OnMatchRres(true);
+            if (roomInfo.Owner == GameNetWork.UserID)
             {
                 engine.setFrameSync(20, true, 0);
             }
 
             Debug.Log(" players count:" + roomUserInfoList.Count);
             roomUserInfoList.ForEach(game.addPlayer);
-            game.addPlayer(new PlayerInfo() { UserID = Game.UserID });
+            game.addPlayer(new PlayerInfo() { UserID = GameNetWork.UserID });
             if (game.getPlayerCount() >= 2)
             {
                 engine.joinOver();
@@ -130,6 +138,7 @@ public class MatchVSResponseInner : MatchvsResponse
 
         } else
         {
+            game.OnMatchRres(false);
             Debug.LogError(" join room failed! ");
         }
     }
@@ -163,7 +172,7 @@ public class MatchVSResponseInner : MatchvsResponse
         Debug.Log(" joinOverResponseInner ");
         if (rsp.Status == ErrorCode.Ok)
         {
-            Game.isStart = true;
+            GameNetWork.isStart = true;
 
 
         } else
@@ -179,7 +188,7 @@ public class MatchVSResponseInner : MatchvsResponse
     private  void joinOverNotifyInner(JoinOverNotify notifyInfo)
     {
         Debug.Log(" ------------------ joinOverNotifyInner ----------------------");
-        Game.isStart = true;
+        GameNetWork.isStart = true;
     }
     /**
      * message LeaveRoomRsp
@@ -254,8 +263,6 @@ public class MatchVSResponseInner : MatchvsResponse
         if(status == 200)
         {
             engine.registerUser(registerUserRes);
-            
-           
         } else
         {
             Debug.LogError("MatchvsEngine init fail!");
@@ -320,7 +327,7 @@ public class MatchVSResponseInner : MatchvsResponse
     private  void sendFrameEventResponseInner(FrameBroadcastAck rsp)
     {
 
-        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - Game.FrameTime)/1000000);
+        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - GameNetWork.FrameTime)/1000000);
     }
     /**
      *
@@ -340,7 +347,7 @@ public class MatchVSResponseInner : MatchvsResponse
                     var frameData = DataUtil.Deserialize<FrameData>(notify.CpProto);
 
                     List<MoveComponent> moveList;
-                    if (Game.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                    if (GameNetWork.frameMoves.TryGetValue(notify.SrcUid, out moveList))
                     {
 
                         moveList.Add(frameData.move);
@@ -349,13 +356,13 @@ public class MatchVSResponseInner : MatchvsResponse
                     else
                     {
                         moveList = new List<MoveComponent>();
-                        Game.frameMoves.Add(notify.SrcUid, moveList);
+                        GameNetWork.frameMoves.Add(notify.SrcUid, moveList);
                     }
 
                    
 
                     List<JumpComponent> jumpList;
-                    if (Game.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
+                    if (GameNetWork.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
                     {
 
                         jumpList.Add(frameData.jump);
@@ -364,14 +371,14 @@ public class MatchVSResponseInner : MatchvsResponse
                     else
                     {
                         jumpList = new List<JumpComponent>();
-                        Game.frameJumps.Add(notify.SrcUid, jumpList);
+                        GameNetWork.frameJumps.Add(notify.SrcUid, jumpList);
                     }
 
                     
 
 
                     List<SimpleAttackComponent> attackList;
-                    if (Game.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
+                    if (GameNetWork.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
                     {
 
                         attackList.Add(frameData.simpleAttack);
@@ -380,7 +387,7 @@ public class MatchVSResponseInner : MatchvsResponse
                     else
                     {
                         attackList = new List<SimpleAttackComponent>();
-                        Game.frameAttacks.Add(notify.SrcUid, attackList);
+                        GameNetWork.frameAttacks.Add(notify.SrcUid, attackList);
                     }
 
                     
