@@ -25,8 +25,7 @@ public class GameNetWork : UnityContext
     public static Dictionary<uint, List<MoveComponent>> frameMoves = new Dictionary<uint, List<MoveComponent>>();
     public static Dictionary<uint, List<JumpComponent>> frameJumps = new Dictionary<uint, List<JumpComponent>>();
     public static Dictionary<uint, List<SimpleAttackComponent>> frameAttacks = new Dictionary<uint, List<SimpleAttackComponent>>();
-
-    public GameObject players;
+    public static Dictionary<uint, Vector3> framePositionChecks = new Dictionary<uint, Vector3>();
 
     private processType initState =  processType.None;
     private processType matchState = processType.None;
@@ -43,8 +42,6 @@ public class GameNetWork : UnityContext
         this.heartBeat = new HeartBeat(this.heatBeatFunc);
     }
 
-
-
     public void clearPlayerFrame()
     {
      
@@ -52,22 +49,11 @@ public class GameNetWork : UnityContext
 
     public void addPlayer(PlayerInfo playerInfo)
     {
-
         Debug.Log("  add player ------------------- :" + playerInfo.UserID);
-
-        UnityEngine.Object playerObj = Resources.Load("Knight", typeof(GameObject));
-        GameObject player = Instantiate(playerObj) as GameObject;
-        player.transform.parent = players.transform;
-        player.transform.localPosition = Vector3.zero;
-        player.transform.localPosition += new Vector3(getPlayerCount() * 1, 0, 0);
+        GameObject player = GameManager.Inst.GenerateCharacter();
         Knight ctrl = player.GetComponent<Knight>();
         ctrl.bindUser(playerInfo.UserID);
        
-    }
-
-    public int getPlayerCount()
-    {
-        return players.transform.childCount;
     }
 
    
@@ -141,4 +127,10 @@ public class GameNetWork : UnityContext
             matchCallback += callback;
         }
     }
+
+    #region event
+
+    #endregion
+
+   
 }

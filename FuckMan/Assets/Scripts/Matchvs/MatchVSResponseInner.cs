@@ -9,15 +9,17 @@ public class MatchVSResponseInner : MatchvsResponse
 {
 
     private static MatchVSResponseInner instance;
-    private MatchVSResponseInner(){}
+    private MatchVSResponseInner() { }
     public static MatchVSResponseInner Inst
     {
-        get { 
-            if (instance ==null)
+        get
+        {
+            if (instance == null)
             {
                 instance = new MatchVSResponseInner();
             }
-            return instance; }
+            return instance;
+        }
     }
 
     private initResponse initRes;
@@ -33,12 +35,13 @@ public class MatchVSResponseInner : MatchvsResponse
     private setFrameSyncNotify setFrameSyncNot;
 
 
-    private GameNetWork game;
     private MatchvsEngine engine;
-    public void bindAll(GameNetWork game)
+    private GameNetWork gameNet;
+
+    public void bindAll(GameNetWork gameNet)
     {
+        this.gameNet = gameNet;
         engine = MatchvsEngine.getInstance();
-        this.game = game;
         registerUserRes = new registerUserResponse(registerUserResponseInner);
         initRes = new initResponse(initResponseInner);
         loginRes = new loginResponse(loginResponseInner);
@@ -76,7 +79,8 @@ public class MatchVSResponseInner : MatchvsResponse
            *
            * @param userInfo {MsRegistRsp//}
            */
-    private void registerUserResponseInner(MsUser userInfo) {
+    private void registerUserResponseInner(MsUser userInfo)
+    {
         Debug.Log("registerUserResponseInner");
         Debug.Log(userInfo);
         GameNetWork.UserID = userInfo.userid;
@@ -87,7 +91,7 @@ public class MatchVSResponseInner : MatchvsResponse
      *
      * @param loginRsp {MsLoginRsp//}
      */
-    private  void loginResponseInner(LoginRsp loginRsp)
+    private void loginResponseInner(LoginRsp loginRsp)
     {
         Debug.Log("loginResponseInner");
         Debug.Log(loginRsp);
@@ -95,7 +99,8 @@ public class MatchVSResponseInner : MatchvsResponse
         {
             GameNetWork.Inst.OnInitRes(true);
             //engine.joinRandomRoom(2);
-        } else
+        }
+        else
         {
             GameNetWork.Inst.OnInitRes(false);
             Debug.LogError(" login failed !");
@@ -105,10 +110,10 @@ public class MatchVSResponseInner : MatchvsResponse
      * MsLogoutRsp
      * @param status {number//}
      */
-    private  void logoutResponseInner(LogoutRsp status)
+    private void logoutResponseInner(LogoutRsp status)
     {
     }
-    private  void createRoomResponseInner(CreateRoomRsp rsp)
+    private void createRoomResponseInner(CreateRoomRsp rsp)
     {
     }
     /**
@@ -117,28 +122,26 @@ public class MatchVSResponseInner : MatchvsResponse
      * @param roomUserInfoList
      * @param roomInfo {MsRoomInfo//}
      */
-    private  void joinRoomResponseInner(int status, List<PlayerInfo> roomUserInfoList, RoomInfo roomInfo)
+    private void joinRoomResponseInner(int status, List<PlayerInfo> roomUserInfoList, RoomInfo roomInfo)
     {
-        Debug.Log("joinRoomResponseInner :" + status);
         if (status == 200)
         {
-            game.OnMatchRres(true);
+            gameNet.OnMatchRres(true);
             if (roomInfo.Owner == GameNetWork.UserID)
             {
                 engine.setFrameSync(20, true, 0);
             }
 
-            Debug.Log(" players count:" + roomUserInfoList.Count);
-            roomUserInfoList.ForEach(game.addPlayer);
-            game.addPlayer(new PlayerInfo() { UserID = GameNetWork.UserID });
-            if (game.getPlayerCount() >= 2)
+            roomUserInfoList.ForEach(gameNet.addPlayer);
+            gameNet.addPlayer(new PlayerInfo() { UserID = GameNetWork.UserID });
+            if (GameManager.Inst.getPlayerCount() >= 2)
             {
                 engine.joinOver();
             }
-
-        } else
+        }
+        else
         {
-            game.OnMatchRres(false);
+            gameNet.OnMatchRres(false);
             Debug.LogError(" join room failed! ");
         }
     }
@@ -154,11 +157,11 @@ public class MatchVSResponseInner : MatchvsResponse
      *}
      * @param roomUserInfo {MsRoomUserInfo//}
      */
-    private  void joinRoomNotifyInner(PlayerInfo roomUserInfo)
+    private void joinRoomNotifyInner(PlayerInfo roomUserInfo)
     {
         Debug.Log(" joinRoomNotifyInner ");
-        game.addPlayer(roomUserInfo);
-        if (game.getPlayerCount() >= 2)
+        gameNet.addPlayer(roomUserInfo);
+        if (GameManager.Inst.getPlayerCount() >= 2)
         {
             engine.joinOver();
         }
@@ -167,7 +170,7 @@ public class MatchVSResponseInner : MatchvsResponse
      *
      * @param {MsJoinOverRsp//} rsp
      */
-    private  void joinOverResponseInner(JoinOverRsp rsp)
+    private void joinOverResponseInner(JoinOverRsp rsp)
     {
         Debug.Log(" joinOverResponseInner ");
         if (rsp.Status == ErrorCode.Ok)
@@ -175,17 +178,18 @@ public class MatchVSResponseInner : MatchvsResponse
             GameNetWork.isStart = true;
 
 
-        } else
+        }
+        else
         {
             Debug.LogError(" join over failed !");
         }
-        
+
     }
     /**
      *
      * @param notifyInfo {MsJoinOverNotifyInfo//}
      */
-    private  void joinOverNotifyInner(JoinOverNotify notifyInfo)
+    private void joinOverNotifyInner(JoinOverNotify notifyInfo)
     {
         Debug.Log(" ------------------ joinOverNotifyInner ----------------------");
         GameNetWork.isStart = true;
@@ -200,48 +204,49 @@ public class MatchVSResponseInner : MatchvsResponse
      *}
      * @param rsp {LeaveRoomRsp//}
      */
-    private  void leaveRoomResponseInner(LeaveRoomRsp rsp)
+    private void leaveRoomResponseInner(LeaveRoomRsp rsp)
     {
     }
     /**
      *
      * @param leaveRoomInfo {MsLeaveRoomNotify//}
      */
-    private  void leaveRoomNotifyInner(NoticeLeave rsp) {
+    private void leaveRoomNotifyInner(NoticeLeave rsp)
+    {
     }
     /**
      * MsKickPlayerRsp
      * @param rsp {MsKickPlayerRsp//}
      */
-    private  void kickPlayerResponseInner(KickPlayerRsp rsp)
+    private void kickPlayerResponseInner(KickPlayerRsp rsp)
     {
     }
     /**
      *
      * @param notify {MsKickPlayerNotify//}
      */
-    private  void kickPlayerNotifyInner(KickPlayerNotify notify)
+    private void kickPlayerNotifyInner(KickPlayerNotify notify)
     {
     }
     /**
      *
      * @param rsp {MsSendEventRsp//}
      */
-    private  void sendEventResponseInner(uint rsp)
+    private void sendEventResponseInner(uint rsp)
     {
     }
     /**
      *
      * @param tRsp {MsSendEventNotify//}
      */
-    private  void sendEventNotifyInner(uint userID, byte[] tRsp)
+    private void sendEventNotifyInner(uint userID, byte[] tRsp)
     {
     }
     /**
      *
      * @param tRsp {MsGameServerNotifyInfo//}
      */
-    private  void gameServerNotifyInner(object tRsp)
+    private void gameServerNotifyInner(object tRsp)
     {
     }
     /**
@@ -249,7 +254,7 @@ public class MatchVSResponseInner : MatchvsResponse
      * @param errCode {Number//}
      * @param errMsg {string//}
      */
-    private  void errorResponseInner(int errCode, string errMsg)
+    private void errorResponseInner(int errCode, string errMsg)
     {
         Debug.LogError(errMsg);
     }
@@ -257,13 +262,14 @@ public class MatchVSResponseInner : MatchvsResponse
      * status==200 is success.other is fail;
      * @param status {int//}
      */
-    private  void initResponseInner(int status)
+    private void initResponseInner(int status)
     {
         Debug.Log(" init response :" + status);
-        if(status == 200)
+        if (status == 200)
         {
             engine.registerUser(registerUserRes);
-        } else
+        }
+        else
         {
             Debug.LogError("MatchvsEngine init fail!");
         }
@@ -272,10 +278,10 @@ public class MatchVSResponseInner : MatchvsResponse
      *
      * @param notify{MsNetworkStateNotify//}
      */
-    private  void networkStateNotifyInner(RoomNetworkStateNotify notify)
+    private void networkStateNotifyInner(RoomNetworkStateNotify notify)
     {
     }
-    private  void teamNetworkStateNotifyInner(TeamNetworkStateNotify notify)
+    private void teamNetworkStateNotifyInner(TeamNetworkStateNotify notify)
     {
     }
     /**
@@ -283,7 +289,7 @@ public class MatchVSResponseInner : MatchvsResponse
      * @param status {number//}
      * @param groups {Array<string>//}
      */
-    private  void subscribeEventGroupResponseInner(object status, object groups)
+    private void subscribeEventGroupResponseInner(object status, object groups)
     {
     }
     /**
@@ -291,7 +297,7 @@ public class MatchVSResponseInner : MatchvsResponse
      * @param status {number//}
      * @param dstNum {number//}
      */
-    private  void sendEventGroupResponseInner(object status, object dstNum)
+    private void sendEventGroupResponseInner(object status, object dstNum)
     {
     }
     /**
@@ -300,14 +306,14 @@ public class MatchVSResponseInner : MatchvsResponse
      * @param groups {Array<string>//}
      * @param cpProto {string//}
      */
-    private  void sendEventGroupNotifyInner(object srcUserID, object groups, object cpProto)
+    private void sendEventGroupNotifyInner(object srcUserID, object groups, object cpProto)
     {
     }
     /**
      *
      * @param rsp {MsSetChannelFrameSyncRsp//}
      */
-    private  void setFrameSyncResponseInner(SetFrameSyncRateAck rsp)
+    private void setFrameSyncResponseInner(SetFrameSyncRateAck rsp)
     {
 
         Debug.Log(" setFrameSyncResponseInner: " + rsp);
@@ -316,7 +322,7 @@ public class MatchVSResponseInner : MatchvsResponse
      *
      * @param notify { MVS.MsSetFrameSyncNotify //}
      */
-    private  void setFrameSyncNotifyInner(SetFrameSyncRateNotify notify)
+    private void setFrameSyncNotifyInner(SetFrameSyncRateNotify notify)
     {
         //Debug.Log(" setFrameSyncNotifyInner: " + notify);
     }
@@ -324,412 +330,429 @@ public class MatchVSResponseInner : MatchvsResponse
      *
      * @param rsp {MsSendFrameEventRsp//}
      */
-    private  void sendFrameEventResponseInner(FrameBroadcastAck rsp)
+    private void sendFrameEventResponseInner(FrameBroadcastAck rsp)
     {
 
-        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - GameNetWork.FrameTime)/1000000);
+        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - GameNetWork.FrameTime) / 1000000);
     }
     /**
      *
      * @param data {MsFrameData//}
      */
-    private  void frameUpdateInner(MsFrameData data)
+    private void frameUpdateInner(MsFrameData data)
     {
         if (data.frameItems.Length > 0)
         {
 
             for (int i = 0; i < data.frameItems.Length; i++)
             {
-                FrameDataNotify notify = (FrameDataNotify)(data.frameItems.GetValue(i));
-
-                try
+                var item = data.frameItems.GetValue(i);
+                if (item != null)
                 {
-                    var frameData = DataUtil.Deserialize<FrameData>(notify.CpProto);
+                    FrameDataNotify notify = (FrameDataNotify)item;
 
-                    List<MoveComponent> moveList;
-                    if (GameNetWork.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                    try
                     {
+                        var frameData = DataUtil.Deserialize<FrameData>(notify.CpProto);
 
-                        moveList.Add(frameData.move);
+                        List<MoveComponent> moveList;
+                        if (GameNetWork.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                        {
+
+                            moveList.Add(frameData.move);
+
+                        }
+                        else
+                        {
+                            moveList = new List<MoveComponent>();
+                            GameNetWork.frameMoves.Add(notify.SrcUid, moveList);
+                        }
+
+
+
+                        List<JumpComponent> jumpList;
+                        if (GameNetWork.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
+                        {
+
+                            jumpList.Add(frameData.jump);
+
+                        }
+                        else
+                        {
+                            jumpList = new List<JumpComponent>();
+                            GameNetWork.frameJumps.Add(notify.SrcUid, jumpList);
+                        }
+
+
+                        List<SimpleAttackComponent> attackList;
+                        if (GameNetWork.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
+                        {
+
+                            attackList.Add(frameData.simpleAttack);
+
+                        }
+                        else
+                        {
+                            attackList = new List<SimpleAttackComponent>();
+                            GameNetWork.frameAttacks.Add(notify.SrcUid, attackList);
+                        }
+
+                        Vector3 position = frameData.position.ToVector3();
+                        if (GameNetWork.framePositionChecks.ContainsKey(notify.SrcUid))
+                        {
+
+                            GameNetWork.framePositionChecks[notify.SrcUid] = position;
+
+                        }
+                        else
+                        {
+                            GameNetWork.framePositionChecks.Add(notify.SrcUid, position);
+                        }
 
                     }
-                    else
+                    catch (Exception e)
                     {
-                        moveList = new List<MoveComponent>();
-                        GameNetWork.frameMoves.Add(notify.SrcUid, moveList);
+                        Debug.Log(e);
                     }
-
-                   
-
-                    List<JumpComponent> jumpList;
-                    if (GameNetWork.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
-                    {
-
-                        jumpList.Add(frameData.jump);
-
-                    }
-                    else
-                    {
-                        jumpList = new List<JumpComponent>();
-                        GameNetWork.frameJumps.Add(notify.SrcUid, jumpList);
-                    }
-
-                    
-
-
-                    List<SimpleAttackComponent> attackList;
-                    if (GameNetWork.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
-                    {
-
-                        attackList.Add(frameData.simpleAttack);
-
-                    }
-                    else
-                    {
-                        attackList = new List<SimpleAttackComponent>();
-                        GameNetWork.frameAttacks.Add(notify.SrcUid, attackList);
-                    }
-
-                    
-                } catch(Exception e)
-                {
-                    Debug.Log(e);
                 }
-
+            
             }
+
         }
     }
-    /**
-     *
-     * @param data {number//}
-     */
-    private  void hotelHeartBeatRspInner(object data)
-    {
-    }
-    /**
-     *
-     * @param rsp {MsGatewaySpeedResponse//}
-     */
-    private  void gatewaySpeedResponseInner(object rsp)
-    {
-    }
-    /**
-     *
-     * @param rsp
-     */
-    private  void heartBeatResponseInner(object rsp)
-    {
-    }
-    /**
-     * 主动断开网络接口回调
-     * @param rep
-     */
-    private  void disConnectResponseInner(object rep)
-    {
-    }
-    /**
-     * 获取房间详细信息回调
-     * @param rsp {MsGetRoomDetailRsp//}
-     */
-    private  void getRoomDetailResponseInner(GetRoomDetailRsp rsp)
-    {
-    }
-    /**
-     * 获取房间扩展信息返回
-     * @param rsp {MsGetRoomListExRsp//}
-     */
-    private  void getRoomListExResponseInner(GetRoomListExRsp rsp)
-    {
-    }
-    /**
-     *
-     * @param rsp {MsSetRoomPropertyRspInfo//}
-     */
-    private  void setRoomPropertyResponseInner(SetRoomPropertyRsp rsp)
-    {
-    }
-    /**
-     *
-     * @param notify
-     */
-    private  void setRoomPropertyNotifyInner(NoticeRoomProperty notify)
-    {
-    }
-    /**
-     *
-     * @param status
-     * @param roomUserInfoList
-     * @param roomInfo
-     */
-    private  void reconnectResponseInner(object status, object roomUserInfoList, object roomInfo)
-    {
-    }
 
-    private  void joinOpenNotifyInner(JoinOpenNotify rsp)
-    {
-    }
-    private  void joinOpenResponseInner(JoinOpenRsp notify)
-    {
-    }
+/**
+ *
+ * @param data {number//}
+ */
+private void hotelHeartBeatRspInner(object data)
+{
+}
+/**
+ *
+ * @param rsp {MsGatewaySpeedResponse//}
+ */
+private void gatewaySpeedResponseInner(object rsp)
+{
+}
+/**
+ *
+ * @param rsp
+ */
+private void heartBeatResponseInner(object rsp)
+{
+}
+/**
+ * 主动断开网络接口回调
+ * @param rep
+ */
+private void disConnectResponseInner(object rep)
+{
+}
+/**
+ * 获取房间详细信息回调
+ * @param rsp {MsGetRoomDetailRsp//}
+ */
+private void getRoomDetailResponseInner(GetRoomDetailRsp rsp)
+{
+}
+/**
+ * 获取房间扩展信息返回
+ * @param rsp {MsGetRoomListExRsp//}
+ */
+private void getRoomListExResponseInner(GetRoomListExRsp rsp)
+{
+}
+/**
+ *
+ * @param rsp {MsSetRoomPropertyRspInfo//}
+ */
+private void setRoomPropertyResponseInner(SetRoomPropertyRsp rsp)
+{
+}
+/**
+ *
+ * @param notify
+ */
+private void setRoomPropertyNotifyInner(NoticeRoomProperty notify)
+{
+}
+/**
+ *
+ * @param status
+ * @param roomUserInfoList
+ * @param roomInfo
+ */
+private void reconnectResponseInner(object status, object roomUserInfoList, object roomInfo)
+{
+}
 
-    /**
-     * 加入观战服务回调
-     * @param rsp {MVS.EnterLiveRoomAck//} 200 成功
-     */
-    private  void joinWatchRoomResponseInner(EnterLiveRoomAck rsp)
-    {
-    }
-    /**
-     * 加入观战服务异步回调
-     * @param notify {MsRoomUserInfo//}
-     */
-    private  void joinWatchRoomNotifyInner(JoinWatchRoomNotify notify)
-    {
-    }
-    /**
-     * 离开观战服务回调
-     * @param status
-     */
-    private  void leaveWatchRoomResponseInner(LeaveWatchRoomRsp status)
-    {
-    }
-    /**
-     * 离开观战服务异步回调
-     * @param user {MVS.LeaveWatchRoomNotify//}
-     */
-    private  void leaveWatchRoomNotifyInner(LeaveWatchRoomNotify user)
-    {
-    }
-    private  void exitLiveRoomNotifyInner(ExitLiveRoomNotify rsp)
-    {
-    }
-    private  void enterLiveRoomNotifyInner(EnterLiveRoomNotify rsp)
-    {
-    }
-    /**
-     * 获取观战房间列表回调
-     * @param rooms {GetWatchRoomsRsp//}
-     */
-    private  void getWatchRoomsResponseInner(GetWatchRoomsRsp rsp)
-    {
-    }
+private void joinOpenNotifyInner(JoinOpenNotify rsp)
+{
+}
+private void joinOpenResponseInner(JoinOpenRsp notify)
+{
+}
 
-    private  void watchHeartBeatInner(object rsp)
-    {
-    }
+/**
+ * 加入观战服务回调
+ * @param rsp {MVS.EnterLiveRoomAck//} 200 成功
+ */
+private void joinWatchRoomResponseInner(EnterLiveRoomAck rsp)
+{
+}
+/**
+ * 加入观战服务异步回调
+ * @param notify {MsRoomUserInfo//}
+ */
+private void joinWatchRoomNotifyInner(JoinWatchRoomNotify notify)
+{
+}
+/**
+ * 离开观战服务回调
+ * @param status
+ */
+private void leaveWatchRoomResponseInner(LeaveWatchRoomRsp status)
+{
+}
+/**
+ * 离开观战服务异步回调
+ * @param user {MVS.LeaveWatchRoomNotify//}
+ */
+private void leaveWatchRoomNotifyInner(LeaveWatchRoomNotify user)
+{
+}
+private void exitLiveRoomNotifyInner(ExitLiveRoomNotify rsp)
+{
+}
+private void enterLiveRoomNotifyInner(EnterLiveRoomNotify rsp)
+{
+}
+/**
+ * 获取观战房间列表回调
+ * @param rooms {GetWatchRoomsRsp//}
+ */
+private void getWatchRoomsResponseInner(GetWatchRoomsRsp rsp)
+{
+}
 
-    private  void liveBroadcastResponseInner(object rsp)
-    {
-    }
+private void watchHeartBeatInner(object rsp)
+{
+}
 
-    private  void liveBroadcastNotifyInner(object notify)
-    {
-    }
+private void liveBroadcastResponseInner(object rsp)
+{
+}
 
-    private  void setLiveOffsetResponseInner(SetLiveOffsetAck rsp)
-    {
-    }
+private void liveBroadcastNotifyInner(object notify)
+{
+}
 
-
-    private  void liveOverNotifyInner(LiveOverNotify notify)
-    {
-    }
-
-    private  void sendLiveEventResponseInner(LiveBroadcastAck notify){ 
-    }
-
-private  void sendLiveEventNotifyInner(LiveBroadcastNotify notify)
-    {
-    }
+private void setLiveOffsetResponseInner(SetLiveOffsetAck rsp)
+{
+}
 
 
+private void liveOverNotifyInner(LiveOverNotify notify)
+{
+}
+
+private void sendLiveEventResponseInner(LiveBroadcastAck notify)
+{
+}
+
+private void sendLiveEventNotifyInner(LiveBroadcastNotify notify)
+{
+}
 
 
-    /**
-     * 观战帧数据
-     * @param data {MsFrameData//}
-     */
-    private  void liveFrameUpdateInner(LiveFrameSyncNotify rsp, LiveFrameDataNotify[] dataArray)
-    {
-    }
-
-    /**
-     * 角色转换接口回调
-     * @param rsp
-     */
-    private  void changeRoleResponseInner(object rsp)
-    {
-    }
-
-    /**
-     *
-     * @param status {number//}
-     * @constructor
-     */
-    private  void setReconnectTimeoutResponseInner(SetReconnectTimeoutRsp status)
-    {
-    }
-    private  void setTeamReconnectTimeoutResponseInner(SetTeamReconnectTimeoutRsp status)
-    {
-    }
-
-    /**
-     *
-     * @param {number//} rsp.status
-     * @param {string//} rsp.teamID
-     * @param {number//} rsp.owner
-     */
-    private  void createTeamResponseInner(CreateTeamRsp rsp)
-    {
-    }
-
-    /**
-     * 加入组队回调
-     * @param {object//} rsp.team
-     * @param {number//} rsp.status
-     * @param {Array<object>//} rsp.userList
-     */
-    private  void joinTeamResponseInner(JoinTeamRsp rsp)
-    {
-    }
-
-    /**
-     * 加入组队异步回调
-     * @param {object//} notify.user
-     */
-    private  void joinTeamNotifyInner(JoinTeamNotify notify)
-    {
-    }
 
 
-    /**
-     *
-     * @param {string//} rsp.teamID
-     * @param {number//} rsp.status
-     * @param {number//} rsp.userID
-     */
-    private  void leaveTeamResponseInner(LeaveTeamRsp rsp)
-    {
-    }
+/**
+ * 观战帧数据
+ * @param data {MsFrameData//}
+ */
+private void liveFrameUpdateInner(LiveFrameSyncNotify rsp, LiveFrameDataNotify[] dataArray)
+{
+}
 
-    /**
-     *
-     * @param {string//} notify.teamID
-     * @param {number//} notify.status
-     * @param {number//} notify.userID
-     * @param {String//} notify.teamProperty
-     */
-    private  void leaveTeamNotifyInner(LeaveTeamNotify notify)
-    {
-    }
+/**
+ * 角色转换接口回调
+ * @param rsp
+ */
+private void changeRoleResponseInner(object rsp)
+{
+}
 
-    /**
-     * @param {number//} rsp.status
-     * @param {string//} rsp.teamID
-     * @param {number//} rsp.userID
-     * @param {String//} rsp.teamProperty
-     */
-    private  void setTeamPropertyResponseInner(SetTeamPropertyRsp rsp)
-    {
-    }
+/**
+ *
+ * @param status {number//}
+ * @constructor
+ */
+private void setReconnectTimeoutResponseInner(SetReconnectTimeoutRsp status)
+{
+}
+private void setTeamReconnectTimeoutResponseInner(SetTeamReconnectTimeoutRsp status)
+{
+}
 
-    /**
-     *
-     * @param {number//} notify.status
-     * @param {string//} notify.teamID
-     * @param {number//} notify.userID
-     * @param {String//} notify.teamUserProfile
-     */
-    private  void setTeamUserProfileNotifyInner(NoticeTeamUserProfile notify)
-    {
-    }
-    /**
-     * @param {number//} rsp.status
-     * @param {string//} rsp.teamID
-     * @param {number//} rsp.userID
-     * @param {String//} rsp.teamProperty
-     */
-    private  void setTeamUserProfileResponseInner(SetTeamUserProfileRsp rsp)
-    {
-    }
+/**
+ *
+ * @param {number//} rsp.status
+ * @param {string//} rsp.teamID
+ * @param {number//} rsp.owner
+ */
+private void createTeamResponseInner(CreateTeamRsp rsp)
+{
+}
 
-    /**
-     *
-     * @param {string//} notify.teamID
-     * @param {number//} notify.userID
-     * @param {String//} notify.teamProperty
-     */
-    private  void setTeamPropertyNotifyInner(NoticeTeamProperty notify)
-    {
-    }
+/**
+ * 加入组队回调
+ * @param {object//} rsp.team
+ * @param {number//} rsp.status
+ * @param {Array<object>//} rsp.userList
+ */
+private void joinTeamResponseInner(JoinTeamRsp rsp)
+{
+}
 
-    /**
-     *
-     * @param {number//} rsp.status
-     */
-    private  void teamMatchResponseInner(TeamMatchRsp rsp)
-    {
-    }
-
-    /**
-     *
-     * @param notify.status
-     * @param notify.brigades
-     * @param notify.roomInfo
-     */
-    private  void teamMatchResultNotifyInner(TeamMatchResultNotify notify)
-    {
-    }
+/**
+ * 加入组队异步回调
+ * @param {object//} notify.user
+ */
+private void joinTeamNotifyInner(JoinTeamNotify notify)
+{
+}
 
 
-    private  void teamMatchStartNotifyInner(TeamMatchStartNotify notify)
-    {
-    }
+/**
+ *
+ * @param {string//} rsp.teamID
+ * @param {number//} rsp.status
+ * @param {number//} rsp.userID
+ */
+private void leaveTeamResponseInner(LeaveTeamRsp rsp)
+{
+}
 
-    private  void getOffLineDataResponseInner(object rsp)
-    {
-    }
+/**
+ *
+ * @param {string//} notify.teamID
+ * @param {number//} notify.status
+ * @param {number//} notify.userID
+ * @param {String//} notify.teamProperty
+ */
+private void leaveTeamNotifyInner(LeaveTeamNotify notify)
+{
+}
 
-    /**
-     * 取消组队匹配回调
-     * @param {number//} rsp.status
-     */
-    private  void cancelTeamMatchResponseInner(CancelTeamMatchRsp rsp)
-    {
-    }
+/**
+ * @param {number//} rsp.status
+ * @param {string//} rsp.teamID
+ * @param {number//} rsp.userID
+ * @param {String//} rsp.teamProperty
+ */
+private void setTeamPropertyResponseInner(SetTeamPropertyRsp rsp)
+{
+}
 
-    /**
-     * 取消队伍匹配，异步接口通知
-     * @param {number//} notify.userID
-     * @param {string//} notify.teamID
-     * @param {string//} notify.cpProto
-     */
-    private  void cancelTeamMatchNotifyInner(CancelTeamMatchNotify notify)
-    {
-    }
+/**
+ *
+ * @param {number//} notify.status
+ * @param {string//} notify.teamID
+ * @param {number//} notify.userID
+ * @param {String//} notify.teamUserProfile
+ */
+private void setTeamUserProfileNotifyInner(NoticeTeamUserProfile notify)
+{
+}
+/**
+ * @param {number//} rsp.status
+ * @param {string//} rsp.teamID
+ * @param {number//} rsp.userID
+ * @param {String//} rsp.teamProperty
+ */
+private void setTeamUserProfileResponseInner(SetTeamUserProfileRsp rsp)
+{
+}
 
-    /**
-     *
-     * @param {number//} rsp.status
-     * @param {Array<number>//} rsp.dstUserIDs
-     */
-    private  void sendTeamEventResponseInner(SendTeamEventRsp rsp)
-    {
-    }
+/**
+ *
+ * @param {string//} notify.teamID
+ * @param {number//} notify.userID
+ * @param {String//} notify.teamProperty
+ */
+private void setTeamPropertyNotifyInner(NoticeTeamProperty notify)
+{
+}
 
-    private  void sendTeamEventNotifyInner(SendTeamEventNotify notify)
-    {
-    }
+/**
+ *
+ * @param {number//} rsp.status
+ */
+private void teamMatchResponseInner(TeamMatchRsp rsp)
+{
+}
 
-    /**
-     *
-     * @param rsp
-     */
-    private  void kickTeamMemberResponseInner(KickTeamMemberRsp rsp)
-    {
-    }
+/**
+ *
+ * @param notify.status
+ * @param notify.brigades
+ * @param notify.roomInfo
+ */
+private void teamMatchResultNotifyInner(TeamMatchResultNotify notify)
+{
+}
 
-    private  void kickTeamMemberNotifyInner(KickTeamMemberNotify notify)
-    {
-    }
+
+private void teamMatchStartNotifyInner(TeamMatchStartNotify notify)
+{
+}
+
+private void getOffLineDataResponseInner(object rsp)
+{
+}
+
+/**
+ * 取消组队匹配回调
+ * @param {number//} rsp.status
+ */
+private void cancelTeamMatchResponseInner(CancelTeamMatchRsp rsp)
+{
+}
+
+/**
+ * 取消队伍匹配，异步接口通知
+ * @param {number//} notify.userID
+ * @param {string//} notify.teamID
+ * @param {string//} notify.cpProto
+ */
+private void cancelTeamMatchNotifyInner(CancelTeamMatchNotify notify)
+{
+}
+
+/**
+ *
+ * @param {number//} rsp.status
+ * @param {Array<number>//} rsp.dstUserIDs
+ */
+private void sendTeamEventResponseInner(SendTeamEventRsp rsp)
+{
+}
+
+private void sendTeamEventNotifyInner(SendTeamEventNotify notify)
+{
+}
+
+/**
+ *
+ * @param rsp
+ */
+private void kickTeamMemberResponseInner(KickTeamMemberRsp rsp)
+{
+}
+
+private void kickTeamMemberNotifyInner(KickTeamMemberNotify notify)
+{
+}
 }

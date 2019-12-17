@@ -15,11 +15,20 @@ public class CustomInputSystem : ComponentSystem
         FrameData frame = new FrameData() { move = new MoveComponent(), jump = new JumpComponent(), simpleAttack = new SimpleAttackComponent()};
         bool isDirty = false;
 
+        //Entities.WithAll<InputComponent, MoveComponent>().ForEach((Entity id, ref MoveComponent moveData) => {
+        //    moveData.speed = hor * moveData.maxSpeed;
+        //});
+
         Entities.WithAll<MoveComponent, UserDataComponent, JumpComponent, SimpleAttackComponent>().WithAll<InputComponent>().ForEach((Entity id, ref MoveComponent moveData, ref UserDataComponent userData, ref JumpComponent jumpData, ref SimpleAttackComponent atkData) => {
 
-           
           if (userData.isSelf)
             {
+                Transform trans = EntityUtility.Instance.GetComponent<Transform>(id);
+                if(trans != null)
+                {
+                    frame.position = new Vect3(trans.position);
+                }
+
                 if (hor != 0)
                 {
                     frame.move.speed = hor * moveData.maxSpeed;

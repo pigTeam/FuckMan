@@ -7,4 +7,7 @@
     public static string platform = "alpha";
     public static uint MaxPlayer = 2;
     public static uint FrameRate = 1;
+
+    public static float checkPositionThreshold = 0.5f;
+    public static bool needSyncPosition = true;
 }
