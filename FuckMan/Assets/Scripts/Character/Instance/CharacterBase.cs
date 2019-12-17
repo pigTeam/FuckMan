@@ -28,6 +28,7 @@ public class CharacterBase : MonoBehaviour
         SetupAnimationComponent();
         SetupJumpComponent();
         SetupSimpleAttackComponent();
+        SetUpEffectComponent();
         SetUpUserDataComponent(uid, isSelf);
         if (isNet)
         {
@@ -45,6 +46,11 @@ public class CharacterBase : MonoBehaviour
     }
 
     #region Setup Components
+
+    void SetUpEffectComponent()
+    {
+        entityManager.AddComponent(thisEntity, typeof(EffectComponent));
+    }
 
     void SetUpNetInputComponent()
     {
