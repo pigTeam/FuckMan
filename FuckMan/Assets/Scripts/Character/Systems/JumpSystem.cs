@@ -6,29 +6,19 @@ public class JumpSystem : ComponentSystem
 {
     protected override void OnUpdate()
     {
-        Entities.WithAll<UserDataComponent, JumpComponent>().ForEach((Entity id, ref UserDataComponent userData, ref JumpComponent jump) => {
+        Entities.WithAll<JumpComponent>().ForEach((Entity id, ref JumpComponent jump) => {
 
-            List<JumpComponent> jumpList;
-            if (GameNetWork.frameJumps.TryGetValue(userData.userID, out jumpList))
+            if (jump.jumpTrigger)
             {
-                if (jumpList.Count > 0)
+                Rigidbody2D rigidbody2D = EntityUtility.Instance.GetComponent<Rigidbody2D>(id);
+                if (rigidbody2D != null && rigidbody2D.IsTouchingLayers(LayerMask.GetMask("Land")))
                 {
-                    var data = jumpList[0];
-                    if (data.jumpTrigger)
-                    {
-                        Rigidbody2D rigidbody2D = EntityUtility.Instance.GetComponent<Rigidbody2D>(id);
-                        if (rigidbody2D != null && rigidbody2D.IsTouchingLayers(LayerMask.GetMask("Land")))
-                        {
-                            rigidbody2D.AddForce(new Vector2(0, data.jumpForce), ForceMode2D.Impulse);
-                        }
-
-
-                    }
-                    jump.jumpTrigger = data.jumpTrigger;
-                    jumpList.Remove(data);
+                    rigidbody2D.AddForce(new Vector2(0, jump.jumpForce), ForceMode2D.Impulse);
                 }
-
+                jump.jumpTrigger = false;
             }
+
+          
             
         });
     }

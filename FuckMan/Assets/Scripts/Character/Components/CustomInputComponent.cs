@@ -2,7 +2,7 @@
 using System.Collections;
 using Unity.Entities;
 
-public struct InputComponent : IComponentData
+public struct CustomInputComponent : IComponentData
 {
 
 }

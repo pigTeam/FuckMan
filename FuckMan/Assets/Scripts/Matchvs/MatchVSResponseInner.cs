@@ -124,26 +124,8 @@ public class MatchVSResponseInner : MatchvsResponse
      */
     private void joinRoomResponseInner(int status, List<PlayerInfo> roomUserInfoList, RoomInfo roomInfo)
     {
-        if (status == 200)
-        {
-            gameNet.OnMatchRres(true);
-            if (roomInfo.Owner == GameNetWork.UserID)
-            {
-                engine.setFrameSync(20, true, 0);
-            }
-
-            roomUserInfoList.ForEach(gameNet.addPlayer);
-            gameNet.addPlayer(new PlayerInfo() { UserID = GameNetWork.UserID });
-            if (GameManager.Inst.getPlayerCount() >= 2)
-            {
-                engine.joinOver();
-            }
-        }
-        else
-        {
-            gameNet.OnMatchRres(false);
-            Debug.LogError(" join room failed! ");
-        }
+        gameNet.OnJoinRoomResponse(status, roomUserInfoList, roomInfo);
+        
     }
     /**
      * message NoticeJoin

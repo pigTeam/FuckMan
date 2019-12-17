@@ -47,13 +47,38 @@ public class GameNetWork : UnityContext
      
     }
 
+    public void OnJoinRoomResponse(int status, List<PlayerInfo> roomUserInfoList, RoomInfo roomInfo)
+    {
+        Loom.QueueOnMainThread(() => {
+            if (status == 200)
+            {
+                MatchvsEngine engine = MatchvsEngine.getInstance();
+                OnMatchRres(true);
+                if (roomInfo.Owner == GameNetWork.UserID)
+                {
+                    engine.setFrameSync(20, true, 0);
+                }
+
+                roomUserInfoList.ForEach(addPlayer);
+                addPlayer(new PlayerInfo() { UserID = GameNetWork.UserID });
+                if (GameManager.Inst.getPlayerCount() >= 2)
+                {
+                    engine.joinOver();
+                }
+            }
+            else
+            {
+                OnMatchRres(false);
+                Debug.LogError(" join room failed! ");
+            }
+        });
+    }
+
     public void addPlayer(PlayerInfo playerInfo)
     {
         Debug.Log("  add player ------------------- :" + playerInfo.UserID);
-        GameObject player = GameManager.Inst.GenerateCharacter();
-        Knight ctrl = player.GetComponent<Knight>();
-        ctrl.bindUser(playerInfo.UserID);
-       
+        CharacterBase player = GameManager.Inst.GenerateCharacter();
+        player.InintCharacter(playerInfo.UserID,playerInfo.UserID == UserID,true);
     }
 
    
@@ -97,20 +122,17 @@ public class GameNetWork : UnityContext
     
     public void OnMatchRres(bool suc)
     {
-        Loom.QueueOnMainThread(() => {
-            if (matchCallback != null)
-            {
-                matchCallback.Invoke(suc);
-                matchCallback = null;
-            }
-        });
-        
-        
+        if (matchCallback != null)
+        {
+            matchCallback.Invoke(suc);
+            matchCallback = null;
+        }
     }
 
     public void Match(Action<bool> callback)
     {
-        if(matchState == processType.None)
+        matchCallback += callback;
+        if (matchState == processType.None)
         {
             matchState = processType.Processing;
             if(initState == processType.Complete)
@@ -121,10 +143,6 @@ public class GameNetWork : UnityContext
             {
                 Initialize();
             }
-        }
-        else
-        {
-            matchCallback += callback;
         }
     }
 
