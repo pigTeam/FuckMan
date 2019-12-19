@@ -109,4 +109,8 @@ public class CharacterBase : MonoBehaviour
     }
     #endregion
 
+    public virtual void HandleAnimEvent(AnimEvent eventType)
+    {
+
+    }
 }

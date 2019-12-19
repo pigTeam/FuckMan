@@ -59,7 +59,7 @@ public class EffectHandler : MonoBehaviour
         }
         var emission = runEffect.emission;
 
-        if (speed!=0)
+        if (speed!=0 && rigidbody.velocity.y == 0)
         {
             emission.enabled = true;
             Quaternion q = Quaternion.Euler(0, 0, 0);

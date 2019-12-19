@@ -54,6 +54,14 @@ public class EntityUtility : Singleton<EntityUtility>
             if(World.Active.EntityManager.HasComponent<T>(entity))
             {
                 result = World.Active.EntityManager.GetComponentObject<T>(entity);
+                if(result == null)
+                {
+                    Debug.LogError("GetComponentFromEntity Error:" + typeof(T).Name);
+                }
+            }
+            else
+            {
+                Debug.LogError("Entity haven't component :" + typeof(T).Name);
             }
         }
         else 

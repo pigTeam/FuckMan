@@ -8,6 +8,7 @@ public enum AnimEvent
 {
     SimpleAttackStart,
     SimpleAttackEnd,
+    SimpleAttackEffect,
 }
 
 public class AnimationEventListener : MonoBehaviour
@@ -31,12 +32,12 @@ public class AnimationEventListener : MonoBehaviour
                 listener = transform.GetComponent<AnimationEventListener>();
                 if(listener == null)
                 {
-                    listener = transform.gameObject.AddComponent<AnimationEventListener>();
-                    listener.onAnimEvent += action;
-                    listener.entity = id;
+                    listener = transform.gameObject.AddComponent<AnimationEventListener>();                    
                 }
+                listener.onAnimEvent += action;
+                listener.entity = id;
 
-                if(listener != null && !listeners.ContainsKey(id))
+                if (listener != null && !listeners.ContainsKey(id))
                 {
                     listeners.Add(id, listener);
                 }

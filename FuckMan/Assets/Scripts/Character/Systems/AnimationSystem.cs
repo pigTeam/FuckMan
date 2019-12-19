@@ -86,6 +86,12 @@ public class AnimationSystem : ComponentSystem
                 EntityUtility.Instance.PopAndAddEntityComponentData<JumpComponent>(id);
                 break;
             default:
+                Transform characterTrans = EntityUtility.Instance.GetComponent<Transform>(id);
+                CharacterBase character = characterTrans.GetComponent<CharacterBase>();
+                if(character != null)
+                {
+                    character.HandleAnimEvent(animType);
+                }
                 break;
         }
     }
