@@ -20,7 +20,7 @@ public class MainUI : MonoBehaviour
             if(res)
             {
                 textBtnMatch.text = "匹配成功";
-                GameManager.Inst.DestroyLocalPlayer();
+                GameManager.Inst.DestroyAllCharacter();
             }
             else
             {

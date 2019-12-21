@@ -7,24 +7,20 @@ public class GameManager : MonoSingleton<GameManager>
     public GameObject playerSpwanPoint;
     public GameObject playerPf;
 
+    private List<int> playerIdList = new List<int>();
     private List<CharacterBase> players = new List<CharacterBase>();
-    private CharacterBase ownPlayer;
 
     void Start()
     {
         //GameNetWork.Inst.Match(null);
-        GenerateLocalPlayer();
+        GenerateLocalPlayer(0,true);
+        GenerateLocalPlayer(1,false);
     }
 
-    public void GenerateLocalPlayer()
+    public void GenerateLocalPlayer(uint id,bool isSelf)
     {
-        ownPlayer = GenerateCharacter();
-        ownPlayer.InintCharacter(0, true);
-    }
-
-    public void DestroyLocalPlayer()
-    {
-        DestroyCharacter(ownPlayer);
+        CharacterBase ownPlayer = GenerateCharacter();
+        ownPlayer.InintCharacter(id, isSelf);
     }
 
     public CharacterBase GenerateCharacter()
@@ -50,8 +46,49 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
+    public void DestroyAllCharacter()
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            GameObject.Destroy(players[i].gameObject);
+        }
+        players.Clear();
+    }
+
     public int getPlayerCount()
     {
         return players.Count;
+    }
+
+    public List<int> GetPlayerInjuries()
+    {
+        List<int> result = null;
+        if(players.Count > 0)
+        {
+            result = new List<int>();
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                InjuryComponent injury;
+                if(players[i].GetComponentData<InjuryComponent>(out injury))
+                {
+                    result.Add(injury.value);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public CharacterBase GetCharacter(uint id)
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            if(players[i].getUserID() == id)
+            {
+                return players[i];
+            }
+        }
+        return null;
     }
 }

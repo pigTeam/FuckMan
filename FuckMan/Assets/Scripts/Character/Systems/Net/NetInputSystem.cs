@@ -14,7 +14,7 @@ public class NetInputSystem : ComponentSystem
         float hor = Input.GetAxis("Horizontal");
         bool isJump = Input.GetKeyDown(KeyCode.Space);
         bool atkTrigger = Input.GetAxis("Fire1") != 0;
-        FrameData frame = new FrameData() { move = new MoveComponent(), jump = new JumpComponent(), simpleAttack = new SimpleAttackComponent() };
+        InputData inputData = new InputData() { move = new MoveComponent(), jump = new JumpComponent(), simpleAttack = new SimpleAttackComponent() };
         bool isDirty = false;
 
         Entities.WithAll<MoveComponent, UserDataComponent, JumpComponent, SimpleAttackComponent>()
@@ -28,12 +28,12 @@ public class NetInputSystem : ComponentSystem
                 Transform trans = EntityUtility.Instance.GetComponent<Transform>(id);
                 if (trans != null)
                 {
-                    frame.position = new Vect3(trans.position);
+                    inputData.position = new Vect3(trans.position);
                 }
 
                 if (hor != 0)
                 {
-                    frame.move.speed = hor * moveData.maxSpeed;
+                    inputData.move.speed = hor * moveData.maxSpeed;
                     isDirty = true;
                     isMove = true;
                 }
@@ -41,7 +41,7 @@ public class NetInputSystem : ComponentSystem
                 {
                     if (isMove)
                     {
-                        frame.move.speed = hor * moveData.maxSpeed;
+                        inputData.move.speed = hor * moveData.maxSpeed;
                         isDirty = true;
                     }
                     isMove = false;
@@ -49,7 +49,7 @@ public class NetInputSystem : ComponentSystem
 
                 if (atkTrigger)
                 {
-                    frame.simpleAttack.attackTrigger = true;
+                    inputData.simpleAttack.attackTrigger = true;
                     isDirty = true;
                     isAttack = true;
                 }
@@ -57,7 +57,7 @@ public class NetInputSystem : ComponentSystem
                 {
                     if (isAttack)
                     {
-                        frame.simpleAttack.attackTrigger = false;
+                        inputData.simpleAttack.attackTrigger = false;
                         isDirty = true;
                     }
                     isAttack = false;
@@ -65,8 +65,8 @@ public class NetInputSystem : ComponentSystem
 
                 if (isJump)
                 {
-                    frame.jump.jumpTrigger = isJump;
-                    frame.jump.jumpForce = jumpData.jumpForce;
+                    inputData.jump.jumpTrigger = isJump;
+                    inputData.jump.jumpForce = jumpData.jumpForce;
                     isDirty = true;
                     isJumpa = true;
                 }
@@ -74,7 +74,7 @@ public class NetInputSystem : ComponentSystem
                 {
                     if (isJumpa)
                     {
-                        frame.jump.jumpTrigger = false;
+                        inputData.jump.jumpTrigger = false;
                         isDirty = true;
                     }
                     isJumpa = false;
@@ -85,6 +85,7 @@ public class NetInputSystem : ComponentSystem
 
         if (isDirty)
         {
+            FrameData frame = new FrameData() { dataType = DataType.INPUT, data = inputData};
             GameNetWork.FrameTime = System.DateTime.Now.Ticks;
             MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(frame));
         }

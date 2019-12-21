@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 6350301399186347042}
   m_Layer: 0
   m_Name: Knight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -172,6 +172,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   jumpForce: 5
+  simpleAttackDamage: 10
 --- !u!95 &1877953052905682738
 Animator:
   serializedVersion: 3

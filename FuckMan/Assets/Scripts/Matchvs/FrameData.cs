@@ -2,8 +2,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public class DataType
+{
+    
+    public static int INPUT = 0;
+    public static int DAMAGE = 1;
+}
+
+
 [Serializable]
 public struct FrameData
+{
+    public int dataType;
+    public object data;
+}
+
+[Serializable]
+public struct InputData
 {
     public MoveComponent move;
     public JumpComponent jump;

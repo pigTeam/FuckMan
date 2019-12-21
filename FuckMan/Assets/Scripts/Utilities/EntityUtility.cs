@@ -122,4 +122,19 @@ public class EntityUtility : Singleton<EntityUtility>
         }
         return new T();
     }
+
+    public bool GetComponentData<T>(Entity entity,out T result) where T : struct, IComponentData
+    {
+        if (World.Active.EntityManager.Exists(entity))
+        {
+            if (World.Active.EntityManager.HasComponent<T>(entity))
+            {
+                result = World.Active.EntityManager.GetComponentData<T>(entity);
+
+                return true;
+            }
+        }
+        result = new T();
+        return false;
+    }
 }

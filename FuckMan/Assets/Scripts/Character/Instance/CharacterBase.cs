@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Matchvs;
 
 public class CharacterBase : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class CharacterBase : MonoBehaviour
     private uint userID = 0;
     public float moveSpeed;
     public float jumpForce;
+    public int simpleAttackDamage;
+
+    private bool _isNet;
+    private bool _isSelf;
 
     public uint getUserID()
     {
@@ -23,6 +28,8 @@ public class CharacterBase : MonoBehaviour
         entityManager = gameObjectEntity.EntityManager;
 
         userID = uid;
+        _isSelf = isSelf;
+        _isNet = isNet;
 
         SetUpMoveComponent();
         SetupAnimationComponent();
@@ -30,12 +37,13 @@ public class CharacterBase : MonoBehaviour
         SetupSimpleAttackComponent();
         SetUpEffectComponent();
         SetUpUserDataComponent(uid, isSelf);
+        SetUpInjuryComponent();
         if (isNet)
         {
             SetUpNetInputComponent();
             SetUpNetSyncComponent();
         }
-        else
+        else if(isSelf)
         {
             SetupCustomInputComponent();
         }
@@ -46,6 +54,11 @@ public class CharacterBase : MonoBehaviour
     }
 
     #region Setup Components
+
+    void SetUpInjuryComponent()
+    {
+        entityManager.AddComponent(thisEntity, typeof(InjuryComponent));
+    }
 
     void SetUpEffectComponent()
     {
@@ -112,5 +125,46 @@ public class CharacterBase : MonoBehaviour
     public virtual void HandleAnimEvent(AnimEvent eventType)
     {
 
+    }
+
+   
+
+    public bool GetComponentData<T>(out T result) where T : struct, IComponentData
+    {
+        result = new T();
+        return EntityUtility.Instance.GetComponentData<T>(thisEntity,out result);
+    }
+
+    public void SetComponentData<T>(T data) where T :struct,IComponentData
+    {
+        if(entityManager.HasComponent<T>(thisEntity))
+        {
+            entityManager.SetComponentData<T>(thisEntity, data);
+        }
+        else
+        {
+            entityManager.AddComponentData<T>(thisEntity, data);
+        }
+    }
+
+    public virtual void DamageOtherCharacter(CharacterBase other)
+    {
+        //Debug.LogError(this.gameObject.name + "-->" + other.name + "===>" + simpleAttackDamage);
+        var damage = new DamageComponent() { fromUserId = userID, targetUserId = other.userID, value = simpleAttackDamage };
+
+        if (_isNet)
+        {
+            if(_isSelf)
+            {
+                //Send DamageEvent
+                FrameData frame = new FrameData() { dataType = DataType.DAMAGE, data = damage };
+                MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(frame));
+            }
+           
+        }
+        else
+        {
+            other.SetComponentData<DamageComponent>(damage);
+        }
     }
 }

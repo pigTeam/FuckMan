@@ -325,7 +325,6 @@ public class MatchVSResponseInner : MatchvsResponse
     {
         if (data.frameItems.Length > 0)
         {
-
             for (int i = 0; i < data.frameItems.Length; i++)
             {
                 var item = data.frameItems.GetValue(i);
@@ -336,59 +335,66 @@ public class MatchVSResponseInner : MatchvsResponse
                     try
                     {
                         var frameData = DataUtil.Deserialize<FrameData>(notify.CpProto);
-
-                        List<MoveComponent> moveList;
-                        if (GameNetWork.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                        if (frameData.dataType == DataType.INPUT)
                         {
+                            InputData inputData = (InputData)frameData.data;
+                            List<MoveComponent> moveList;
+                            if (GameNetWork.frameMoves.TryGetValue(notify.SrcUid, out moveList))
+                            {
 
-                            moveList.Add(frameData.move);
+                                moveList.Add(inputData.move);
 
+                            }
+                            else
+                            {
+                                moveList = new List<MoveComponent>();
+                                GameNetWork.frameMoves.Add(notify.SrcUid, moveList);
+                            }
+
+
+
+                            List<JumpComponent> jumpList;
+                            if (GameNetWork.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
+                            {
+
+                                jumpList.Add(inputData.jump);
+
+                            }
+                            else
+                            {
+                                jumpList = new List<JumpComponent>();
+                                GameNetWork.frameJumps.Add(notify.SrcUid, jumpList);
+                            }
+
+
+                            List<SimpleAttackComponent> attackList;
+                            if (GameNetWork.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
+                            {
+
+                                attackList.Add(inputData.simpleAttack);
+
+                            }
+                            else
+                            {
+                                attackList = new List<SimpleAttackComponent>();
+                                GameNetWork.frameAttacks.Add(notify.SrcUid, attackList);
+                            }
+
+                            Vector3 position = inputData.position.ToVector3();
+                            if (GameNetWork.framePositionChecks.ContainsKey(notify.SrcUid))
+                            {
+
+                                GameNetWork.framePositionChecks[notify.SrcUid] = position;
+                            }
+                            else
+                            {
+                                GameNetWork.framePositionChecks.Add(notify.SrcUid, position);
+                            }
                         }
-                        else
+                        else if (frameData.dataType == DataType.DAMAGE)
                         {
-                            moveList = new List<MoveComponent>();
-                            GameNetWork.frameMoves.Add(notify.SrcUid, moveList);
-                        }
-
-
-
-                        List<JumpComponent> jumpList;
-                        if (GameNetWork.frameJumps.TryGetValue(notify.SrcUid, out jumpList))
-                        {
-
-                            jumpList.Add(frameData.jump);
-
-                        }
-                        else
-                        {
-                            jumpList = new List<JumpComponent>();
-                            GameNetWork.frameJumps.Add(notify.SrcUid, jumpList);
-                        }
-
-
-                        List<SimpleAttackComponent> attackList;
-                        if (GameNetWork.frameAttacks.TryGetValue(notify.SrcUid, out attackList))
-                        {
-
-                            attackList.Add(frameData.simpleAttack);
-
-                        }
-                        else
-                        {
-                            attackList = new List<SimpleAttackComponent>();
-                            GameNetWork.frameAttacks.Add(notify.SrcUid, attackList);
-                        }
-
-                        Vector3 position = frameData.position.ToVector3();
-                        if (GameNetWork.framePositionChecks.ContainsKey(notify.SrcUid))
-                        {
-
-                            GameNetWork.framePositionChecks[notify.SrcUid] = position;
-
-                        }
-                        else
-                        {
-                            GameNetWork.framePositionChecks.Add(notify.SrcUid, position);
+                            DamageComponent damageData = (DamageComponent)frameData.data;
+                            gameNet.HandleDamage(damageData);
                         }
 
                     }

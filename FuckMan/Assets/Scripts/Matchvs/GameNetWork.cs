@@ -27,7 +27,7 @@ public class GameNetWork : UnityContext
     public static Dictionary<uint, List<SimpleAttackComponent>> frameAttacks = new Dictionary<uint, List<SimpleAttackComponent>>();
     public static Dictionary<uint, Vector3> framePositionChecks = new Dictionary<uint, Vector3>();
 
-    private processType initState =  processType.None;
+    private processType initState = processType.None;
     private processType matchState = processType.None;
     private Action<bool> matchCallback;
 
@@ -44,12 +44,13 @@ public class GameNetWork : UnityContext
 
     public void clearPlayerFrame()
     {
-     
+
     }
 
     public void OnJoinRoomResponse(int status, List<PlayerInfo> roomUserInfoList, RoomInfo roomInfo)
     {
-        Loom.QueueOnMainThread(() => {
+        Loom.QueueOnMainThread(() =>
+        {
             if (status == 200)
             {
                 MatchvsEngine engine = MatchvsEngine.getInstance();
@@ -78,10 +79,10 @@ public class GameNetWork : UnityContext
     {
         Debug.Log("  add player ------------------- :" + playerInfo.UserID);
         CharacterBase player = GameManager.Inst.GenerateCharacter();
-        player.InintCharacter(playerInfo.UserID,playerInfo.UserID == UserID,true);
+        player.InintCharacter(playerInfo.UserID, playerInfo.UserID == UserID, true);
     }
 
-   
+
     void heatBeatFunc()
     {
         Debug.Log(" heart beat ");
@@ -89,7 +90,7 @@ public class GameNetWork : UnityContext
 
     public void Initialize()
     {
-        if(initState == processType.None)
+        if (initState == processType.None)
         {
             MatchVSResponseInner.Inst.bindAll(this);
             MatchvsEngine.getInstance().init(this, GameConfig.GameID, GameConfig.AppKey, GameConfig.channel, GameConfig.platform);
@@ -107,9 +108,9 @@ public class GameNetWork : UnityContext
             initState = processType.None;
         }
 
-        if(matchState == processType.Processing)
+        if (matchState == processType.Processing)
         {
-            if(suc)
+            if (suc)
             {
                 MatchVSResponseInner.Inst.Match(Config.MaxPlayer);
             }
@@ -119,7 +120,7 @@ public class GameNetWork : UnityContext
             }
         }
     }
-    
+
     public void OnMatchRres(bool suc)
     {
         if (matchCallback != null)
@@ -135,7 +136,7 @@ public class GameNetWork : UnityContext
         if (matchState == processType.None)
         {
             matchState = processType.Processing;
-            if(initState == processType.Complete)
+            if (initState == processType.Complete)
             {
                 MatchVSResponseInner.Inst.Match(Config.MaxPlayer);
             }
@@ -150,5 +151,16 @@ public class GameNetWork : UnityContext
 
     #endregion
 
-   
+    public void HandleDamage(DamageComponent damage)
+    {
+        CharacterBase character = GameManager.Inst.GetCharacter(damage.targetUserId);
+        if(character != null)
+        {
+            character.SetComponentData<DamageComponent>(damage);
+        }
+        else
+        {
+            Debug.LogError("Damage cannot find targetCharacter id = " + damage.targetUserId);
+        }
+    }
 }
