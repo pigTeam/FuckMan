@@ -320,7 +320,7 @@ public class MatchVSResponseInner : MatchvsResponse
     private  void sendFrameEventResponseInner(FrameBroadcastAck rsp)
     {
 
-        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - Game.FrameTime)/1000000);
+        Debug.Log(" sendFrameEventResponseInner: " + (System.DateTime.Now.Ticks - Game.FrameTime)/1000 + " ms");
     }
     /**
      *
