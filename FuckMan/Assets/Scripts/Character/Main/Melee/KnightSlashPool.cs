@@ -51,15 +51,15 @@ public class KnightSlashPool : MonoBehaviour
         slash.transform.position = pos;
         slash.transform.rotation = rotation;
         slash.gameObject.SetActive(true);
-        slash.Act(owner,(target)=> {
+        slash.Act(owner,(target,damageDir)=> {
             slash.gameObject.SetActive(false);
-            slashPool.Add(slash);
+            slashPool.Add(slash); 
             if(target != null)
             {
                 CharacterBase targetCharacter = target.GetComponent<CharacterBase>();
                 if(targetCharacter != null)
                 {
-                    owner.DamageOtherCharacter(targetCharacter);
+                    owner.DamageOtherCharacter(targetCharacter, damageDir);
                 }
             }
         });

@@ -5,6 +5,9 @@ using Matchvs;
 
 public class NetInputSystem : ComponentSystem
 {
+    private float syncPositionTimeSpan = 1;
+    private float syncPositionTimer = 0;
+
     private bool isMove = false;
     private bool isAttack = false;
     private bool isJumpa = false;
@@ -17,6 +20,27 @@ public class NetInputSystem : ComponentSystem
         InputData inputData = new InputData() { move = new MoveComponent(), jump = new JumpComponent(), simpleAttack = new SimpleAttackComponent() };
         bool isDirty = false;
 
+        //SyncPosition
+        syncPositionTimer += Time.deltaTime;
+        if (syncPositionTimer > syncPositionTimeSpan)
+        {
+            Entities.WithAllReadOnly<UserDataComponent>().ForEach((Entity id, ref UserDataComponent userData) => {
+                if(userData.isSelf)
+                {
+                    Transform trans = EntityUtility.Instance.GetComponent<Transform>(id);
+                    if (trans != null)
+                    {
+                        PositionData positionData = new PositionData(trans.position);
+                        FrameData frameData = new FrameData() { dataType = DataType.PositionSync, data = positionData };
+                        //发送位置同步消息
+                        GameNetWork.Inst.SendFrameData(frameData);
+                    }
+                }
+            });
+            
+            syncPositionTimer = 0;
+        }
+        
         Entities.WithAll<MoveComponent, UserDataComponent, JumpComponent, SimpleAttackComponent>()
             .WithAll<NetInputComponent>()
             .ForEach((Entity id, ref MoveComponent moveData,
@@ -25,11 +49,7 @@ public class NetInputSystem : ComponentSystem
 
             if (userData.isSelf)
             {
-                Transform trans = EntityUtility.Instance.GetComponent<Transform>(id);
-                if (trans != null)
-                {
-                    inputData.position = new Vect3(trans.position);
-                }
+                
 
                 if (hor != 0)
                 {
@@ -85,9 +105,9 @@ public class NetInputSystem : ComponentSystem
 
         if (isDirty)
         {
-            FrameData frame = new FrameData() { dataType = DataType.INPUT, data = inputData};
+            FrameData frame = new FrameData() { dataType = DataType.Input, data = inputData};
             GameNetWork.FrameTime = System.DateTime.Now.Ticks;
-            MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(frame));
+            GameNetWork.Inst.SendFrameData(frame);
         }
     }
 

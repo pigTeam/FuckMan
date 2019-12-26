@@ -14,6 +14,18 @@ public class Knight : CharacterBase
         slashHandler = GetComponentInChildren<KnightSlashPool>();
     }
 
+    private void Update()
+    {
+        if(Input.GetMouseButtonDown(1))
+        {
+            if(_isSelf)
+            {
+                var damage = new DamageComponent() { fromUserId = 0, targetUserId = userID, value = simpleAttackDamage };
+                SetComponentData<DamageComponent>(damage);
+            }
+        }
+    }
+
     public override void HandleAnimEvent(AnimEvent eventType)
     {
         base.HandleAnimEvent(eventType);

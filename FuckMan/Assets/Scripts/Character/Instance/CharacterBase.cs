@@ -3,18 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Matchvs;
+using System;
 
 public class CharacterBase : MonoBehaviour
 {
-    private EntityManager entityManager;
-    private Entity thisEntity;
-    private uint userID = 0;
+    protected EntityManager entityManager;
+    protected Entity thisEntity;
+    protected uint userID = 0;
     public float moveSpeed;
     public float jumpForce;
     public int simpleAttackDamage;
 
-    private bool _isNet;
-    private bool _isSelf;
+    protected bool _isNet;
+    protected bool _isSelf;
+
 
     public uint getUserID()
     {
@@ -38,6 +40,7 @@ public class CharacterBase : MonoBehaviour
         SetUpEffectComponent();
         SetUpUserDataComponent(uid, isSelf);
         SetUpInjuryComponent();
+        SetUpShotDownComponent();
         if (isNet)
         {
             SetUpNetInputComponent();
@@ -55,6 +58,10 @@ public class CharacterBase : MonoBehaviour
 
     #region Setup Components
 
+    void SetUpShotDownComponent()
+    {
+        entityManager.AddComponent(thisEntity, typeof(ShotDownComponent));
+    }
     void SetUpInjuryComponent()
     {
         entityManager.AddComponent(thisEntity, typeof(InjuryComponent));
@@ -147,20 +154,21 @@ public class CharacterBase : MonoBehaviour
         }
     }
 
-    public virtual void DamageOtherCharacter(CharacterBase other)
+    public virtual void DamageOtherCharacter(CharacterBase other,Vector2 dir)
     {
         //Debug.LogError(this.gameObject.name + "-->" + other.name + "===>" + simpleAttackDamage);
-        var damage = new DamageComponent() { fromUserId = userID, targetUserId = other.userID, value = simpleAttackDamage };
+        var damage = new DamageComponent() 
+        { fromUserId = userID, targetUserId = other.userID,
+            value = simpleAttackDamage,dir = new Dir2D(dir) };
 
         if (_isNet)
         {
             if(_isSelf)
             {
                 //Send DamageEvent
-                FrameData frame = new FrameData() { dataType = DataType.DAMAGE, data = damage };
-                MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(frame));
+                FrameData frame = new FrameData() { dataType = DataType.Damage, data = damage };
+                GameNetWork.Inst.SendFrameData(frame);
             }
-           
         }
         else
         {

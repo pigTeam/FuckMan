@@ -30,6 +30,7 @@ public class GameNetWork : UnityContext
     private processType initState = processType.None;
     private processType matchState = processType.None;
     private Action<bool> matchCallback;
+    private MatchVSDataParser parser;
 
     private void Awake()
     {
@@ -39,6 +40,7 @@ public class GameNetWork : UnityContext
     void Start()
     {
         DontDestroyOnLoad(this);
+        parser = new MatchVSDataParser();
         this.heartBeat = new HeartBeat(this.heatBeatFunc);
     }
 
@@ -66,6 +68,9 @@ public class GameNetWork : UnityContext
                 {
                     engine.joinOver();
                 }
+
+                //init random
+                UnityEngine.Random.InitState((int)roomInfo.RoomID);
             }
             else
             {
@@ -78,8 +83,9 @@ public class GameNetWork : UnityContext
     public void addPlayer(PlayerInfo playerInfo)
     {
         Debug.Log("  add player ------------------- :" + playerInfo.UserID);
-        CharacterBase player = GameManager.Inst.GenerateCharacter();
-        player.InintCharacter(playerInfo.UserID, playerInfo.UserID == UserID, true);
+        bool isSelf = playerInfo.UserID == UserID;
+        CharacterBase player = GameManager.Inst.GenerateCharacter(isSelf);
+        player.InintCharacter(playerInfo.UserID, isSelf, true);
     }
 
 
@@ -151,6 +157,11 @@ public class GameNetWork : UnityContext
 
     #endregion
 
+    public void SendFrameData(FrameData data)
+    {
+        MatchvsEngine.getInstance().sendFrameEvent(DataUtil.Serialize(data));
+    }
+
     public void HandleDamage(DamageComponent damage)
     {
         CharacterBase character = GameManager.Inst.GetCharacter(damage.targetUserId);
@@ -162,5 +173,10 @@ public class GameNetWork : UnityContext
         {
             Debug.LogError("Damage cannot find targetCharacter id = " + damage.targetUserId);
         }
+    }
+
+    public void ParseMatchVSData(MsFrameData data)
+    {
+        parser.Parse(data);
     }
 }

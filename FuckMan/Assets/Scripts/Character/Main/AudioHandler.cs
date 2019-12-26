@@ -2,12 +2,14 @@
 using System.Collections;
 
 
-public class AnimAudioHandler : MonoBehaviour
+public class AudioHandler : MonoBehaviour
 {
     public AudioClip footStep;
     public AudioClip simpleAttackAudio;
     public AudioClip jumpAttackAudio;
     public AudioClip landAudio;
+    public AudioClip hitAudio;
+    public AudioClip hitedAudio;
 
     private AudioSource audioSource;
     private Rigidbody2D rigidBody;
@@ -57,5 +59,21 @@ public class AnimAudioHandler : MonoBehaviour
     private void PlayAudio(AudioClip clip)
     {
         audioSource.PlayOneShot(clip);
+    }
+
+    public void OnHitSomeBody()
+    {
+        if(hitAudio != null)
+        {
+            PlayAudio(hitAudio);
+        }
+    }
+
+    public void OnGetHited()
+    {
+        if (hitedAudio != null)
+        {
+            PlayAudio(hitedAudio);
+        }
     }
 }

@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 1877953052905682739}
   - component: {fileID: 1877953052905682736}
   - component: {fileID: 6350301399186347042}
+  - component: {fileID: 1788176184104575421}
   m_Layer: 0
   m_Name: Knight
   m_TagString: Player
@@ -106,7 +107,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 1.2
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -119,7 +120,7 @@ PolygonCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1877953052905682747}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -142,7 +143,7 @@ PolygonCollider2D:
       - {x: -1.6429119, y: -0.1761079}
       - {x: -2.3428936, y: -1.3197286}
       - {x: -2.1401389, y: -3.0081964}
-      - {x: 0.8035711, y: -3.0171344}
+      - {x: 0.8035711, y: -3.008196}
       - {x: 2.0437582, y: -0.14096755}
       - {x: 1.1168643, y: 1.8900511}
       - {x: -0.71922374, y: 3.1076467}
@@ -171,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  jumpForce: 5
+  jumpForce: 8
   simpleAttackDamage: 10
 --- !u!95 &1877953052905682738
 Animator:
@@ -208,6 +209,8 @@ MonoBehaviour:
   simpleAttackAudio: {fileID: 8300000, guid: 9937b13a597a1684c9aaf389f16f55c0, type: 3}
   jumpAttackAudio: {fileID: 8300000, guid: c750f336ab2efa5478dd13f54d209f3f, type: 3}
   landAudio: {fileID: 8300000, guid: ed2c9fdcb1558cc4a9314d69fdf62d3e, type: 3}
+  hitAudio: {fileID: 8300000, guid: c742d074ef409bf4391a1c6a994c159d, type: 3}
+  hitedAudio: {fileID: 8300000, guid: fec6a4e5bfd5ba74598f6a7ead89d046, type: 3}
 --- !u!114 &1877953052905682736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,6 +241,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c72bd86cc1d83b746b5a8521fddfe22c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!70 &1788176184104575421
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1877953052905682747}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.37849715, y: 0.017726846}
+  m_Size: {x: 3.5043836, y: 6.089162}
+  m_Direction: 0
 --- !u!1 &1877953054038306318
 GameObject:
   m_ObjectHideFlags: 0

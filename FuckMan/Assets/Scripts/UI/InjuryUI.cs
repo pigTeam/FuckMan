@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 public class InjuryUI : MonoBehaviour
 {
-    public Text text1p;
-    public Text text2p;
+    public Text injury1p;
+    public Text injury2p;
+    public Text shotDown1p;
+    public Text shotDown2p;
 
     // Use this for initialization
     void Start()
@@ -17,18 +19,16 @@ public class InjuryUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        text1p.gameObject.SetActive(false);
-        text2p.gameObject.SetActive(false);
-        List<int> injuries = GameManager.Inst.GetPlayerInjuries();
-        if(injuries.Count > 0)
-        {
-            text1p.gameObject.SetActive(true);
-            text1p.text = injuries[0] + "%";
-        }
-        if(injuries.Count > 1)
-        {
-            text2p.gameObject.SetActive(true);
-            text2p.text = injuries[1] + "%";
-        }
+        injury1p.gameObject.SetActive(false);
+        injury2p.gameObject.SetActive(false);
+        int[,] status = GameManager.Inst.GetPlayerStatus();
+
+        injury1p.gameObject.SetActive(true);
+        injury1p.text = status[0, 0] + "%";
+        shotDown1p.text = status[0, 1].ToString();
+
+        injury2p.gameObject.SetActive(true);
+        injury2p.text = status[1,0] + "%";
+        shotDown2p.text = status[1,1] + "";
     }
 }

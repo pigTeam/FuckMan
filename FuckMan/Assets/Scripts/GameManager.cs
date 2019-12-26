@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 
 public class GameManager : MonoSingleton<GameManager>
 {
-    public GameObject playerSpwanPoint;
+    public Transform playerSpwanPointA;
+    public Transform playerSpwanPointB;
     public GameObject playerPf;
+
+    [SerializeField]
+    private Transform deadLine;
 
     private List<int> playerIdList = new List<int>();
     private List<CharacterBase> players = new List<CharacterBase>();
@@ -14,23 +19,34 @@ public class GameManager : MonoSingleton<GameManager>
     {
         //GameNetWork.Inst.Match(null);
         GenerateLocalPlayer(0,true);
-        GenerateLocalPlayer(1,false);
+        GenerateLocalPlayer(1, false);
     }
 
-    public void GenerateLocalPlayer(uint id,bool isSelf)
+    public CharacterBase GenerateLocalPlayer(uint id,bool isSelf)
     {
-        CharacterBase ownPlayer = GenerateCharacter();
+        CharacterBase ownPlayer = GenerateCharacter(isSelf);
         ownPlayer.InintCharacter(id, isSelf);
+        return ownPlayer;
     }
 
-    public CharacterBase GenerateCharacter()
+    public CharacterBase GenerateCharacter(bool needCameraFollow)
     {
         GameObject player = Instantiate(playerPf) as GameObject;
-        player.transform.parent = playerSpwanPoint.transform;
-        player.transform.localPosition = Vector3.zero;
+        Transform spawnPoint = playerSpwanPointA.transform;
+        if (players.Count % 2 != 0)
+        {
+            spawnPoint = playerSpwanPointB.transform;
+        }
+
+        player.transform.parent = spawnPoint.parent;
+        player.transform.position = spawnPoint.position+(players.Count / 2) * new Vector3(1,0,0);
         player.transform.localPosition += new Vector3(getPlayerCount() * 1, 0, 0);
         CharacterBase character = player.GetComponent<CharacterBase>();
         players.Add(character);
+        if(needCameraFollow)
+        {
+            CameraManager.Inst.LockFollowTarget(player.transform);
+        }
         return character;
     }
 
@@ -60,19 +76,22 @@ public class GameManager : MonoSingleton<GameManager>
         return players.Count;
     }
 
-    public List<int> GetPlayerInjuries()
+    public int[,] GetPlayerStatus()
     {
-        List<int> result = null;
+        int[,] result = new int[2, 2];
         if(players.Count > 0)
         {
-            result = new List<int>();
-
-            for (int i = 0; i < players.Count; i++)
+            for (int i = 0; i < 2; i++)
             {
                 InjuryComponent injury;
                 if(players[i].GetComponentData<InjuryComponent>(out injury))
                 {
-                    result.Add(injury.value);
+                    result[i,0] = injury.value;
+                }
+                ShotDownComponent shotDown;
+                if (players[i].GetComponentData<ShotDownComponent>(out shotDown))
+                {
+                    result[i, 1] = shotDown.time;
                 }
             }
         }
@@ -90,5 +109,37 @@ public class GameManager : MonoSingleton<GameManager>
             }
         }
         return null;
+    }
+
+    public void HandlePlayerDeath(Entity playerEntity)
+    {
+        Transform trans = EntityUtility.Instance.GetComponent<Transform>(playerEntity);
+        if (trans != null && trans.position.y < deadLine.position.y)
+        {
+            //Dead
+            Vector3 position = new Vector3(Random.Range(-2.5f, 2.5f), 2, 0);
+            trans.position = position;
+            Rigidbody2D rigidbody = trans.GetComponent<Rigidbody2D>();
+            if(rigidbody != null)
+            {
+                rigidbody.velocity = Vector2.zero;
+            }
+
+            //write status
+            CharacterBase character = trans.GetComponent<CharacterBase>();
+            if(character != null)
+            {
+                ShotDownComponent shotDown;
+                if(character.GetComponentData<ShotDownComponent>(out shotDown))
+                {
+                    shotDown.time += 1;
+                }
+                else
+                {
+                    shotDown = new ShotDownComponent() { time = 1 };
+                }
+                character.SetComponentData<ShotDownComponent>(shotDown);
+            }
+        }
     }
 }

@@ -3,18 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DataType
+[Serializable]
+public enum DataType
 {
-    
-    public static int INPUT = 0;
-    public static int DAMAGE = 1;
+    Input = 0,
+    Damage,
+    PositionSync,
 }
 
 
 [Serializable]
 public struct FrameData
 {
-    public int dataType;
+    public DataType dataType;
     public object data;
 }
 
@@ -24,17 +25,16 @@ public struct InputData
     public MoveComponent move;
     public JumpComponent jump;
     public SimpleAttackComponent simpleAttack;
-    public Vect3 position;
 }
 
 [Serializable]
-public struct Vect3
+public struct PositionData
 {
     public float x;
     public float y;
     public float z;
 
-    public Vect3(Vector3 vector3)
+    public PositionData(Vector3 vector3)
     {
         x = vector3.x;
         y = vector3.y;

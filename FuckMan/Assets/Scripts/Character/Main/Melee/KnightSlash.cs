@@ -12,7 +12,7 @@ public class KnightSlash : MonoBehaviour
     public float animTime = 0.2f;
     private SpriteRenderer spriteRenderer;
 
-    private Action<GameObject> onSlashDead;
+    private Action<GameObject,Vector2> onSlashDead;
     private IDisposable deadTask;
     private CharacterBase _owner;
     private Tweener tweener;
@@ -35,7 +35,7 @@ public class KnightSlash : MonoBehaviour
 
     }
 
-    public void Act(CharacterBase owner,Action<GameObject> callback)
+    public void Act(CharacterBase owner,Action<GameObject,Vector2> callback)
     {
         _owner = owner;
         onSlashDead += callback;
@@ -46,7 +46,7 @@ public class KnightSlash : MonoBehaviour
         deadTask = Observable.Timer(TimeSpan.FromSeconds(0.2f))
             .Subscribe(x =>
             {
-                TriggerSlashDead(null);
+                TriggerSlashDead(null,Vector2.zero);
             });
     }
 
@@ -55,11 +55,11 @@ public class KnightSlash : MonoBehaviour
         if(collision.gameObject.CompareTag("Player") && _owner != null && collision.gameObject != _owner.gameObject)
         {
             ShowSlashHit();
-            TriggerSlashDead(collision.gameObject);
+            TriggerSlashDead(collision.gameObject,transform.right.normalized);
         }
     }
 
-    private void TriggerSlashDead(GameObject target)
+    private void TriggerSlashDead(GameObject target,Vector2 dir)
     {
         if(tweener != null)
         {
@@ -75,7 +75,7 @@ public class KnightSlash : MonoBehaviour
 
         if (onSlashDead != null)
         {
-            onSlashDead.Invoke(target);
+            onSlashDead.Invoke(target,dir);
             onSlashDead = null;
         }
     }
