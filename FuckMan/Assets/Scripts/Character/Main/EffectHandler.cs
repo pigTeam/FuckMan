@@ -24,12 +24,12 @@ public class EffectHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(rigidbody.velocity.y == 0)
+        //Debug.LogError(rigidbody.velocity.y + "," + velosityVertical+","+ Mathf.Approximately(rigidbody.velocity.y, 0));
+        bool case1 = Mathf.Approximately(rigidbody.velocity.y, 0) && velosityVertical < 0;
+        bool case2 = rigidbody.velocity.y > 0 && velosityVertical < 0;
+        if (case1 || case2)
         {
-            if(velosityVertical < 0)
-            {
-                PlayLandEffect();
-            }
+            PlayLandEffect();
         }
         velosityVertical = rigidbody.velocity.y;
     }

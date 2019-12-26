@@ -28,7 +28,9 @@ public class AudioHandler : MonoBehaviour
 
     private void Update()
     {
-        if(rigidBody.velocity.y == 0 && velosityVertical < 0)
+        bool case1 = Mathf.Approximately(rigidBody.velocity.y, 0) && velosityVertical < 0;
+        bool case2 = rigidBody.velocity.y > 0 && velosityVertical < 0;
+        if (case1 || case2)
         {
             PlayAudio(landAudio);
         }
